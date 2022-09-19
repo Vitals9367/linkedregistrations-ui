@@ -7,11 +7,18 @@ module.exports = {
   coveragePathIgnorePatterns: [
     '<rootDir>/src/pages/',
     '<rootDir>/src/tests/',
-    '<rootDir>/src/utils/getPageHeaderHeight.ts',
-    '<rootDir>/src/utils/mockDataUtils.ts',
-    '<rootDir>/src/utils/testUtils.ts',
     'constants.ts',
     'types.ts',
+    '<rootDir>/src/domain/auth/userManager.ts',
+    '<rootDir>/src/domain/auth/callbackComponent/CallbackComponent.tsx',
+    '<rootDir>/src/domain/auth/hooks/useAuth.ts',
+    '<rootDir>/src/domain/auth/hooks/useApiToken.ts',
+    '<rootDir>/src/domain/auth/oidcCallback/OidcCallback.tsx',
+    '<rootDir>/src/domain/auth/silentCallback/SilentCallback.tsx',
+    '<rootDir>/src/utils/getPageHeaderHeight.ts',
+    '<rootDir>/src/utils/mockAuthContextValue.ts',
+    '<rootDir>/src/utils/mockDataUtils.ts',
+    '<rootDir>/src/utils/testUtils.ts',
   ],
   moduleNameMapper: {
     /* Handle CSS imports (with CSS modules)

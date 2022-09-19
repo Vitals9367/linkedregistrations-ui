@@ -38,3 +38,5 @@ export enum RESERVATION_NAMES {
 export enum FORM_NAMES {
   CREATE_ENROLMENT_FORM = 'create-enrolment-form',
 }
+
+export const TEST_USER_ID = 'user:1';

@@ -1,5 +1,11 @@
 {
   "appName": "Linked Registrations",
+  "authentication": {
+    "errorMessage": "Tapahtui virhe. Yritä uudestaan",
+    "networkError": {
+      "message": "Virhe kirjautumisessa: Tarkista verkkoyhteytesi ja yritä uudestaan"
+    }
+  },
   "cancel": "Peruuta",
   "dropdownSelect": {
     "accessibility": {
@@ -15,6 +21,10 @@
   },
   "loading": "Ladataan...",
   "loadingFinished": "Lataaminen päättynyt",
+  "logoutPage": {
+    "text": "Olet kirjautunut ulos palvelusta.",
+    "title": "Uloskirjautuminen"
+  },
   "navigation": {
     "languages": {
       "en": "In English",
@@ -50,6 +60,8 @@
   },
   "showLess": "Näytä vähemmän",
   "showMore": "Näytä lisää",
+  "signIn": "Kirjaudu sisään",
+  "signOut": "Kirjaudu ulos",
   "titleServerErrorSummary": "Lomakkeella on seuraavat virheet",
   "validation": {
     "age": {

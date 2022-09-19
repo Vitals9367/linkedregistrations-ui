@@ -1,5 +1,11 @@
 {
   "appName": "Linked Registrations",
+  "authentication": {
+    "errorMessage": "Ett fel har uppstått. Vänligen försök igen.",
+    "networkError": {
+      "message": "Ett fel har uppstått vid inloggningen: Kontrollera din nätförbindelse och försök igen."
+    }
+  },
   "cancel": "Ångra",
   "dropdownSelect": {
     "accessibility": {
@@ -15,6 +21,10 @@
   },
   "loading": "Laddar...",
   "loadingFinished": "Laddningen är klar",
+  "logoutPage": {
+    "text": "Du har loggat ut från tjänsten.",
+    "title": "Logga ut"
+  },
   "navigation": {
     "languages": {
       "en": "In English",
@@ -50,6 +60,8 @@
   },
   "showLess": "Visa mindre",
   "showMore": "Visa mer",
+  "signIn": "Logga in",
+  "signOut": "Logga ut",
   "titleServerErrorSummary": "Formuläret innehåller följande fel",
   "validation": {
     "age": {

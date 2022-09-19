@@ -6,12 +6,18 @@ import mockRouter from 'next-router-mock';
 import React from 'react';
 
 import {
+  fakeAuthenticatedAuthContextValue,
+  fakeOidcUserProfileState,
+  fakeOidcUserState,
+} from '../../../../utils/mockAuthContextValue';
+import {
   configure,
   render,
   screen,
   userEvent,
   waitFor,
 } from '../../../../utils/testUtils';
+import { AuthContextProps } from '../../../auth/types';
 import Header from '../Header';
 
 configure({ defaultHidden: true });
@@ -24,7 +30,8 @@ beforeEach(() => {
   i18n.changeLanguage('fi');
 });
 
-const renderComponent = () => render(<Header />);
+const renderComponent = (authContextValue?: AuthContextProps) =>
+  render(<Header />, { authContextValue });
 
 const getElement = (key: 'enOption' | 'menuButton' | 'svOption') => {
   switch (key) {
@@ -45,7 +52,9 @@ const getElement = (key: 'enOption' | 'menuButton' | 'svOption') => {
   }
 };
 
-const getElements = (key: 'appName' | 'languageSelector') => {
+const getElements = (
+  key: 'appName' | 'languageSelector' | 'signInButton' | 'signOutLink'
+) => {
   switch (key) {
     case 'appName':
       return screen.getAllByRole('link', {
@@ -55,6 +64,10 @@ const getElements = (key: 'appName' | 'languageSelector') => {
       return screen.getAllByRole('button', {
         name: /suomi - kielivalikko/i,
       });
+    case 'signInButton':
+      return screen.getAllByRole('button', { name: /kirjaudu sisään/i });
+    case 'signOutLink':
+      return screen.getAllByRole('link', { name: /kirjaudu ulos/i });
   }
 };
 
@@ -101,4 +114,41 @@ test('should change language', async () => {
   const svOption = getElement('svOption');
   await user.click(svOption);
   expect(mockRouter.locale).toBe('sv');
+});
+
+test('should start login process', async () => {
+  const user = userEvent.setup();
+
+  const signIn = jest.fn();
+  const authContextValue = fakeAuthenticatedAuthContextValue({
+    signIn,
+    isAuthenticated: false,
+  });
+  renderComponent(authContextValue);
+
+  const signInButtons = getElements('signInButton');
+  await user.click(signInButtons[0]);
+
+  expect(signIn).toBeCalled();
+});
+
+test('should start logout process', async () => {
+  const user = userEvent.setup();
+  const email = 'test@email.com';
+
+  const signOut = jest.fn();
+  const authContextValue = fakeAuthenticatedAuthContextValue({
+    isAuthenticated: true,
+    signOut,
+    user: fakeOidcUserState({ profile: fakeOidcUserProfileState({ email }) }),
+  });
+  renderComponent(authContextValue);
+
+  const userMenuButton = await screen.findByRole('button', { name: email });
+  await user.click(userMenuButton);
+
+  const signOutLinks = getElements('signOutLink');
+  await user.click(signOutLinks[0]);
+
+  await waitFor(() => expect(signOut).toBeCalled());
 });

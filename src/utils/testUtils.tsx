@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable no-console */
+/* eslint-disable import/export */
 import { ParsedUrlQuery } from 'querystring';
 
 import {
@@ -10,7 +10,6 @@ import {
 } from '@tanstack/react-query';
 import {
   act,
-  fireEvent,
   render,
   RenderResult,
   screen,
@@ -19,27 +18,34 @@ import {
 import { RequestHandler } from 'msw';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import { NextRouter } from 'next/router';
-import React from 'react';
+import React, { ReducerAction } from 'react';
 import wait from 'waait';
 
 import { testId } from '../common/components/loadingSpinner/LoadingSpinner';
+import { AuthContext } from '../domain/auth/AuthContext';
+import { AuthContextProps } from '../domain/auth/types';
 import { server } from '../tests/msw/server';
+import { authContextDefaultValue } from '../utils/mockAuthContextValue';
 
-export const arrowUpKeyPressHelper = (): boolean =>
-  fireEvent.keyDown(document, { code: 38, key: 'ArrowUp' });
+type CustomRenderOptions = {
+  authContextValue?: AuthContextProps;
+  path?: string;
+  query?: ParsedUrlQuery;
+  router?: Partial<NextRouter>;
+};
 
-export const arrowDownKeyPressHelper = (): boolean =>
-  fireEvent.keyDown(document, { code: 40, key: 'ArrowDown' });
-
-export const enterKeyPressHelper = (): boolean =>
-  fireEvent.keyDown(document, { code: 13, key: 'Enter' });
-
-export const escKeyPressHelper = (): boolean =>
-  fireEvent.keyDown(document, { code: 27, key: 'Escape' });
+type CustomRender = {
+  (ui: React.ReactElement, options?: CustomRenderOptions): CustomRenderResult;
+};
 
 const customRender: CustomRender = (
   ui,
-  { path = '/', query = {}, router = {} } = {}
+  {
+    authContextValue = authContextDefaultValue,
+    path = '/',
+    query = {},
+    router = {},
+  } = {}
 ) => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -54,19 +60,20 @@ const customRender: CustomRender = (
 
   const Wrapper: React.JSXElementConstructor<any> = ({ children }) => {
     return (
-      <RouterContext.Provider
-        value={{
-          ...mockRouter,
-          ...router,
-          ...(path ? { pathname: path, asPath: path, basePath: path } : {}),
-          ...(query ? { query } : {}),
-        }}
-      >
-        {/* @ts-ignore */}
-        <QueryClientProvider client={queryClient}>
-          {children as React.ReactElement}
-        </QueryClientProvider>
-      </RouterContext.Provider>
+      <AuthContext.Provider value={authContextValue}>
+        <RouterContext.Provider
+          value={{
+            ...mockRouter,
+            ...router,
+            ...(path ? { pathname: path, asPath: path, basePath: path } : {}),
+            ...(query ? { query } : {}),
+          }}
+        >
+          <QueryClientProvider client={queryClient}>
+            {children as React.ReactElement}
+          </QueryClientProvider>
+        </RouterContext.Provider>
+      </AuthContext.Provider>
     );
   };
 
@@ -96,21 +103,11 @@ const mockRouter: NextRouter = {
   isPreview: false,
 };
 
-export type CustomRenderOptions = {
-  path?: string;
-  query?: ParsedUrlQuery;
-  router?: Partial<NextRouter>;
-};
-
-type CustomRender = {
-  (ui: React.ReactElement, options?: CustomRenderOptions): CustomRenderResult;
-};
-
-export const setQueryMocks = (...handlers: RequestHandler[]): void => {
+const setQueryMocks = (...handlers: RequestHandler[]): void => {
   server.use(...handlers);
 };
 
-export const getQueryWrapper = (): React.JSXElementConstructor<any> => {
+const getQueryWrapper = (): React.JSXElementConstructor<any> => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -118,7 +115,6 @@ export const getQueryWrapper = (): React.JSXElementConstructor<any> => {
   const wrapper: React.FC<
     React.PropsWithChildren<QueryClientProviderProps>
   > = ({ children }) => (
-    // @ts-ignore
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
   return wrapper;
@@ -129,17 +125,25 @@ type CustomRenderResult = RenderResult;
 const actWait = (amount?: number): Promise<void> => act(() => wait(amount));
 
 const loadingSpinnerIsNotInDocument = async (timeout = 1000): Promise<void> =>
-  waitFor(
-    () => {
-      expect(screen.queryAllByTestId(testId)).toHaveLength(0);
-    },
-    { timeout }
-  );
+  waitFor(() => expect(screen.queryAllByTestId(testId)).toHaveLength(0), {
+    timeout,
+  });
 
-// eslint-disable-next-line import/export
-export { actWait, customRender as render, loadingSpinnerIsNotInDocument };
+const waitReducerToBeCalled = async (
+  dispatch: jest.SpyInstance,
+  action: ReducerAction<any>
+) => await waitFor(() => expect(dispatch).toBeCalledWith(action));
+
+export {
+  actWait,
+  CustomRenderOptions,
+  customRender as render,
+  getQueryWrapper,
+  loadingSpinnerIsNotInDocument,
+  setQueryMocks,
+  waitReducerToBeCalled,
+};
 
 // re-export everything
-// eslint-disable-next-line import/export
 export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';

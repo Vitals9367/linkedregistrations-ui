@@ -10,7 +10,6 @@ type Props = FieldProps & DateInputProps;
 
 const DateInputField: React.FC<Props> = ({
   field: { name, value, onBlur, onChange, ...field },
-  form,
   helperText,
   ...rest
 }) => {
@@ -20,20 +19,11 @@ const DateInputField: React.FC<Props> = ({
   const errorText = getErrorText(error, touched, t);
 
   const handleBlur = () => {
-    onBlur({
-      target: {
-        id: name,
-      },
-    });
+    onBlur({ target: { id: name } });
   };
 
   const handleChange = (value: string) => {
-    onChange({
-      target: {
-        id: name,
-        value,
-      },
-    });
+    onChange({ target: { id: name, value } });
   };
 
   return (

@@ -1,5 +1,11 @@
 {
   "appName": "Linked Registrations",
+  "authentication": {
+    "errorMessage": "An error has occurred. Please try again later.",
+    "networkError": {
+      "message": "An error has occurred during login: Please check your internet connection and try again."
+    }
+  },
   "cancel": "Undo",
   "dropdownSelect": {
     "accessibility": {
@@ -15,6 +21,10 @@
   },
   "loading": "Loading...",
   "loadingFinished": "Loading finished",
+  "logoutPage": {
+    "text": "You have been logged out of the service.",
+    "title": "Logout"
+  },
   "navigation": {
     "languages": {
       "en": "In English",
@@ -50,6 +60,8 @@
   },
   "showLess": "Show less",
   "showMore": "Show more",
+  "signIn": "Sign in",
+  "signOut": "Sign out",
   "titleServerErrorSummary": "Form contains following errors",
   "validation": {
     "age": {

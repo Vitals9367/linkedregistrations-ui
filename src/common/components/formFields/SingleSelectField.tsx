@@ -11,7 +11,6 @@ type Props = SingleSelectProps<OptionType> & FieldProps;
 
 const SingleSelectField: React.FC<Props> = ({
   field: { name, onBlur, onChange, value, ...field },
-  form,
   helper,
   options,
   ...rest
@@ -26,9 +25,7 @@ const SingleSelectField: React.FC<Props> = ({
   };
 
   const handleChange = (selected: OptionType) => {
-    onChange({
-      target: { id: name, value: selected.value },
-    });
+    onChange({ target: { id: name, value: selected.value } });
   };
 
   return (
