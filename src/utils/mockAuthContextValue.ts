@@ -1,12 +1,13 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import merge from 'lodash/merge';
-import { Profile, User, UserManager } from 'oidc-client';
+import { Profile, User } from 'oidc-client';
 
 import { TEST_USER_ID } from '../constants';
 import {
   apiTokenInitialState,
   oidcInitialState,
+  TEST_API_TOKEN,
 } from '../domain/auth/constants';
 import {
   ApiTokenReducerState,
@@ -51,7 +52,7 @@ export const fakeApiTokenReducerState = (
 ): ApiTokenReducerState =>
   merge<ApiTokenReducerState, typeof overrides>(
     {
-      apiToken: 'api-token',
+      apiToken: TEST_API_TOKEN,
       tokenErrors: {},
       isLoadingApiToken: false,
     },

@@ -4,11 +4,18 @@
 import mockAxios from 'axios';
 import i18n from 'i18next';
 import { advanceTo, clear } from 'jest-date-mock';
+import { rest } from 'msw';
 import { toast } from 'react-toastify';
 
 import { fakeOidcUserState } from '../../../utils/mockAuthContextValue';
-import { waitReducerToBeCalled } from '../../../utils/testUtils';
-import { API_SCOPE, ApiTokenActionTypes, OidcActionTypes } from '../constants';
+import { setQueryMocks, waitReducerToBeCalled } from '../../../utils/testUtils';
+import {
+  API_SCOPE,
+  ApiTokenActionTypes,
+  OidcActionTypes,
+  TEST_API_TOKEN,
+  TEST_ACCESS_TOKEN,
+} from '../constants';
 import userManager from '../userManager';
 import {
   clearApiTokenFromStorage,
@@ -35,6 +42,9 @@ import {
   startFetchingToken,
 } from '../utils';
 
+const accessToken = TEST_ACCESS_TOKEN;
+const apiToken = TEST_API_TOKEN;
+
 afterEach(() => {
   jest.clearAllMocks();
   clear();
@@ -55,16 +65,15 @@ const events = {
   removeUserUnloaded: () => undefined,
 };
 
-const axiousCalled = async ({
+const axiosCalled = async ({
   accessToken,
   axiosFn,
 }: {
   accessToken: string;
   axiosFn: jest.SpyInstance;
 }) => {
-  expect(axiosFn).toHaveBeenCalledTimes(1);
   expect(axiosFn).toHaveBeenCalledWith(
-    `${process.env.REACT_APP_OIDC_AUTHORITY}/api-tokens/`,
+    `${process.env.NEXT_PUBLIC_OIDC_AUTHORITY}/api-tokens/`,
     { headers: { Authorization: `bearer ${accessToken}` } }
   );
 };
@@ -78,7 +87,7 @@ const apiTokenFetchSucceeded = async ({
   axiosFn: jest.SpyInstance;
   dispatch: jest.SpyInstance;
 }) => {
-  axiousCalled({ accessToken, axiosFn });
+  axiosCalled({ accessToken, axiosFn });
 
   await waitReducerToBeCalled(
     dispatch,
@@ -95,7 +104,7 @@ const apiTokenFetchFailed = async ({
   axiosFn: jest.SpyInstance;
   dispatch: jest.SpyInstance;
 }) => {
-  axiousCalled({ accessToken, axiosFn });
+  axiosCalled({ accessToken, axiosFn });
 
   await waitReducerToBeCalled(
     dispatch,
@@ -105,8 +114,6 @@ const apiTokenFetchFailed = async ({
 
 describe('getApiTokenFromStorage function', () => {
   it('should store api token to session storage and get it from there', async () => {
-    const apiToken = 'api-token';
-
     expect(getApiTokenFromStorage()).toBe(null);
 
     setApiTokenToStorage(apiToken);
@@ -271,6 +278,7 @@ describe('loadUser function', () => {
   });
 
   it('should load user successfully', async () => {
+    console.error = jest.fn();
     const userManager = {
       getUser: jest.fn().mockRejectedValue({ message: 'error' }),
       removeUser: jest.fn(),
@@ -333,6 +341,11 @@ describe('signIn function', () => {
 
 describe('signOut function', () => {
   it('should clear user after signing out', async () => {
+    setQueryMocks(
+      rest.get(`*/openid-configuration`, (req, res, ctx) =>
+        res(ctx.status(200), ctx.json({}))
+      )
+    );
     const resetApiTokenData = jest.fn();
 
     await signOut({ resetApiTokenData, userManager });
@@ -373,8 +386,6 @@ describe('fetchTokenSuccess function', () => {
 describe('getApiToken function', () => {
   it('should get api token', async () => {
     const dispatchApiTokenState = jest.fn();
-    const accessToken = 'access-token';
-    const apiToken = 'api-token';
 
     const axiosGet = jest
       .spyOn(mockAxios, 'get')
@@ -396,7 +407,6 @@ describe('getApiToken function', () => {
   it('should show toast error message when failing to get api token', async () => {
     const dispatchApiTokenState = jest.fn();
     const toastError = jest.spyOn(toast, 'error');
-    const accessToken = 'access-token';
     const error = new Error('error');
 
     const axiosGet = jest.spyOn(mockAxios, 'get').mockRejectedValue(error);
@@ -420,8 +430,6 @@ describe('getApiToken function', () => {
 describe('renewApiToken function', () => {
   it('should renew api token', async () => {
     const dispatchApiTokenState = jest.fn();
-    const accessToken = 'access-token';
-    const apiToken = 'api-token';
 
     const axiosGet = jest
       .spyOn(mockAxios, 'get')
@@ -443,7 +451,6 @@ describe('renewApiToken function', () => {
   it('should show toast error message when failing to renew api token', async () => {
     const dispatchApiTokenState = jest.fn();
     const toastError = jest.spyOn(toast, 'error');
-    const accessToken = 'access-token';
     const error = new Error('error');
 
     const axiosGet = jest.spyOn(mockAxios, 'get').mockRejectedValue(error);

@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, waitFor } from '@testing-library/react';
+import { rest } from 'msw';
 import React from 'react';
 
+import { setQueryMocks } from '../../../utils/testUtils';
 import { AuthContext, AuthProvider } from '../AuthContext';
-import { OidcActionTypes } from '../constants';
+import { API_SCOPE, OidcActionTypes, TEST_API_TOKEN } from '../constants';
 import { reducers } from '../reducers';
 
 function oidcEvent(fn) {
@@ -36,6 +38,14 @@ jest.mock('oidc-client', () => {
       };
     }),
   };
+});
+
+beforeEach(() => {
+  setQueryMocks(
+    rest.get(`*/api-tokens/`, (req, res, ctx) =>
+      res(ctx.status(200), ctx.json({ [API_SCOPE]: TEST_API_TOKEN }))
+    )
+  );
 });
 
 describe('AuthContext', () => {

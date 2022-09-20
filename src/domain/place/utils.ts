@@ -2,12 +2,12 @@ import { AxiosError } from 'axios';
 
 import { Language } from '../../types';
 import getLocalisedString from '../../utils/getLocalisedString';
-import axiosClient from '../app/axios/axiosClient';
+import { callGet } from '../app/axios/axiosClient';
 import { Place, PlaceFields } from './types';
 
 export const fetchPlace = async (id: string): Promise<Event> => {
   try {
-    const { data } = await axiosClient.get(`/place/${id}/`);
+    const { data } = await callGet(`/place/${id}/`);
     return data;
   } catch (error) {
     /* istanbul ignore next */

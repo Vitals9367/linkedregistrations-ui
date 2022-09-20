@@ -4,6 +4,7 @@ import {
   apiTokenInitialState,
   OidcActionTypes,
   oidcInitialState,
+  TEST_API_TOKEN,
 } from '../constants';
 import { apiTokenReducer, oidcReducer } from '../reducers';
 import {
@@ -34,9 +35,12 @@ describe('apiTokenReducer function', () => {
         },
       ],
       [
-        { type: ApiTokenActionTypes.FETCH_TOKEN_SUCCESS, payload: 'api-token' },
+        {
+          type: ApiTokenActionTypes.FETCH_TOKEN_SUCCESS,
+          payload: TEST_API_TOKEN,
+        },
         loadingApiTokenState,
-        { apiToken: 'api-token', isLoadingApiToken: false, tokenErrors: {} },
+        { apiToken: TEST_API_TOKEN, isLoadingApiToken: false, tokenErrors: {} },
       ],
       [
         { type: ApiTokenActionTypes.RESET_API_TOKEN_DATA, payload: null },

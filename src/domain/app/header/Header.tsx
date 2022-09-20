@@ -8,6 +8,7 @@ import { MAIN_CONTENT_ID, PAGE_HEADER_ID } from '../../../constants';
 import useLocale from '../../../hooks/useLocale';
 import useSelectLanguage from '../../../hooks/useSelectLanguage';
 import { useAuth } from '../../auth/hooks/useAuth';
+import useUser from '../../user/hooks/useUser';
 import { ROUTES } from '../routes/constants';
 import styles from './header.module.scss';
 
@@ -15,7 +16,8 @@ const Header: React.FC = () => {
   const locale = useLocale();
   const router = useRouter();
   const { changeLanguage, languageOptions } = useSelectLanguage();
-  const { isAuthenticated: authenticated, signIn, signOut, user } = useAuth();
+  const { isAuthenticated: authenticated, signIn, signOut } = useAuth();
+  const { user } = useUser();
 
   const { t } = useTranslation('common');
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -56,10 +58,10 @@ const Header: React.FC = () => {
       <Navigation.Actions>
         {/* USER */}
         <Navigation.User
-          authenticated={Boolean(authenticated)}
+          authenticated={Boolean(authenticated && user)}
           label={t('signIn')}
           onSignIn={handleSignIn}
-          userName={user?.profile.email}
+          userName={user?.display_name}
         >
           <Navigation.Item
             label={t('signOut')}

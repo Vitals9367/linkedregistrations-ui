@@ -1,19 +1,21 @@
 /* eslint-disable import/no-named-as-default-member */
 /* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/no-var-requires */
 import i18n from 'i18next';
+import { rest } from 'msw';
 import mockRouter from 'next-router-mock';
 import React from 'react';
 
+import { TEST_USER_ID } from '../../../../constants';
 import {
+  fakeAuthContextValue,
   fakeAuthenticatedAuthContextValue,
-  fakeOidcUserProfileState,
-  fakeOidcUserState,
 } from '../../../../utils/mockAuthContextValue';
+import { fakeUser } from '../../../../utils/mockDataUtils';
 import {
   configure,
   render,
   screen,
+  setQueryMocks,
   userEvent,
   waitFor,
 } from '../../../../utils/testUtils';
@@ -120,10 +122,7 @@ test('should start login process', async () => {
   const user = userEvent.setup();
 
   const signIn = jest.fn();
-  const authContextValue = fakeAuthenticatedAuthContextValue({
-    signIn,
-    isAuthenticated: false,
-  });
+  const authContextValue = fakeAuthContextValue({ signIn });
   renderComponent(authContextValue);
 
   const signInButtons = getElements('signInButton');
@@ -134,17 +133,29 @@ test('should start login process', async () => {
 
 test('should start logout process', async () => {
   const user = userEvent.setup();
-  const email = 'test@email.com';
+
+  const username = 'Username';
+  const userData = fakeUser({ display_name: username });
+
+  const defaultMocks = [
+    rest.get(`*/user/${TEST_USER_ID}/`, (req, res, ctx) =>
+      res(ctx.status(200), ctx.json(userData))
+    ),
+  ];
+  setQueryMocks(...defaultMocks);
 
   const signOut = jest.fn();
   const authContextValue = fakeAuthenticatedAuthContextValue({
     isAuthenticated: true,
     signOut,
-    user: fakeOidcUserState({ profile: fakeOidcUserProfileState({ email }) }),
   });
   renderComponent(authContextValue);
 
-  const userMenuButton = await screen.findByRole('button', { name: email });
+  const userMenuButton = await screen.findByRole(
+    'button',
+    { name: username },
+    { timeout: 10000 }
+  );
   await user.click(userMenuButton);
 
   const signOutLinks = getElements('signOutLink');

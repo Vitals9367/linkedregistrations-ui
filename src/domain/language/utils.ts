@@ -3,12 +3,12 @@ import { capitalize } from 'lodash';
 
 import { OptionType, Language } from '../../types';
 import getLocalisedString from '../../utils/getLocalisedString';
-import axiosClient from '../app/axios/axiosClient';
+import { callGet } from '../app/axios/axiosClient';
 import { LanguagesResponse, LELanguage } from './types';
 
 export const fetchLanguages = async (): Promise<LanguagesResponse> => {
   try {
-    const { data } = await axiosClient.get('/language/');
+    const { data } = await callGet('/language/');
     return data;
   } catch (error) {
     /* istanbul ignore next */

@@ -5,7 +5,7 @@ import { TFunction } from 'next-i18next';
 
 import { VALIDATION_MESSAGE_KEYS } from '../../constants';
 import queryBuilder from '../../utils/queryBuilder';
-import axiosClient from '../app/axios/axiosClient';
+import { callGet } from '../app/axios/axiosClient';
 import {
   Registration,
   RegistrationFields,
@@ -16,7 +16,7 @@ export const fetchRegistration = async (
   args: RegistrationQueryVariables
 ): Promise<Registration> => {
   try {
-    const { data } = await axiosClient.get(registrationPathBuilder(args));
+    const { data } = await callGet(registrationPathBuilder(args));
     return data;
   } catch (error) {
     throw Error(JSON.stringify((error as AxiosError).response?.data));

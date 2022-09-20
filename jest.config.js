@@ -20,6 +20,7 @@ module.exports = {
     '<rootDir>/src/utils/mockDataUtils.ts',
     '<rootDir>/src/utils/testUtils.ts',
   ],
+  globalSetup: '<rootDir>/src/setupEnv.js',
   moduleNameMapper: {
     /* Handle CSS imports (with CSS modules)
       https://jestjs.io/docs/webpack#mocking-css-modules */

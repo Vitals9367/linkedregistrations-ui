@@ -3,12 +3,12 @@ import { AxiosError } from 'axios';
 import { Language } from '../../types';
 import getLocalisedString from '../../utils/getLocalisedString';
 import queryBuilder from '../../utils/queryBuilder';
-import axiosClient from '../app/axios/axiosClient';
+import { callGet } from '../app/axios/axiosClient';
 import { Event, EventFields, EventQueryVariables } from './types';
 
 export const fetchEvent = async (args: EventQueryVariables): Promise<Event> => {
   try {
-    const { data } = await axiosClient.get(eventPathBuilder(args));
+    const { data } = await callGet(eventPathBuilder(args));
     return data;
   } catch (error) {
     /* istanbul ignore next */

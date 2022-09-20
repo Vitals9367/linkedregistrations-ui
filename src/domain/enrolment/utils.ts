@@ -7,7 +7,7 @@ import formatDate from '../../utils/formatDate';
 import getUnixTime from '../../utils/getUnixTime';
 import queryBuilder from '../../utils/queryBuilder';
 import stringToDate from '../../utils/stringToDate';
-import axiosClient from '../app/axios/axiosClient';
+import { callDelete, callGet, callPost } from '../app/axios/axiosClient';
 import { Registration } from '../registration/types';
 import {
   ATTENDEE_INITIAL_VALUES,
@@ -30,7 +30,7 @@ export const fetchEnrolment = async (
   args: EnrolmentQueryVariables
 ): Promise<Enrolment> => {
   try {
-    const { data } = await axiosClient.get(enrolmentPathBuilder(args));
+    const { data } = await callGet(enrolmentPathBuilder(args));
     return data;
   } catch (error) {
     /* istanbul ignore next */
@@ -53,7 +53,7 @@ export const createEnrolment = async (
   input: CreateEnrolmentMutationInput
 ): Promise<Enrolment> => {
   try {
-    const { data } = await axiosClient.post('/signup/', JSON.stringify(input));
+    const { data } = await callPost('/signup/', JSON.stringify(input));
     return data;
   } catch (error) {
     throw Error(JSON.stringify((error as AxiosError).response?.data));
@@ -64,7 +64,7 @@ export const deleteEnrolment = async (
   cancellationCode: string
 ): Promise<null> => {
   try {
-    const { data } = await axiosClient.delete('/signup/', {
+    const { data } = await callDelete('/signup/', {
       data: JSON.stringify({ cancellation_code: cancellationCode }),
     });
     return data;
