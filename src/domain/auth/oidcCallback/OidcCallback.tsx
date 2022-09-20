@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useRouter } from 'next/router';
-import { User, UserManager } from 'oidc-client';
+import { User } from 'oidc-client';
 import React from 'react';
 
 import CallbackComponent from '../callbackComponent/CallbackComponent';
@@ -10,12 +9,15 @@ const OidcCallback: React.FC = () => {
   const router = useRouter();
 
   const onSuccess = (user: User) => {
-    router.replace(user.state.path || '/');
+    router.replace(user.state.path);
   };
 
   const onError = () => {
-    // In case used denies the access
-    router.replace('/');
+    if (
+      new URLSearchParams(window.location.hash.replace('#', '?')).get('error')
+    ) {
+      router.replace('/');
+    }
   };
 
   return (
