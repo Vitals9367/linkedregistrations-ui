@@ -25,7 +25,7 @@ import {
   OidcReducerState,
 } from './types';
 
-const apiAccessTokenStorage = typeof isClient
+const apiAccessTokenStorage = isClient
   ? sessionStorage
   : /* istanbul ignore next */ undefined;
 
