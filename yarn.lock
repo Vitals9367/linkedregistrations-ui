@@ -3350,31 +3350,37 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-hds-core@2.1.1, hds-core@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/hds-core/-/hds-core-2.1.1.tgz#8238d0ca359e217a819237ecf634c20d1c58e688"
-  integrity sha512-CC9OYSYX/B5Qh7HOTfJSAPRPbBPRw27ZlNx0uVvRk6DedRfGg+BSqinTsJfHDZKFbGap8Zma/gwS+tlwHBfDwg==
+hds-core@2.3.0, hds-core@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/hds-core/-/hds-core-2.3.0.tgz#aec746d4714fca987cc9546cf2e225429e3e70e6"
+  integrity sha512-8rIXvVbbuIK4qsQ5ZkOxnpfwj8FX9BpROxSGIDAs4qNJjtg86iVpXrpLdxmWoDPcHowRY/ZErA4PX+AmLDeESA==
 
-hds-design-tokens@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/hds-design-tokens/-/hds-design-tokens-2.1.1.tgz#1c3103d3a4963f31a5d910a012aa114cd867dacc"
-  integrity sha512-q3HEskPdgr+56PvcKjgu1lkRtSczS+mp17sVPCp7WyAHKWFWSzHveEiaeYiaPMdV+kAhnz4CeQ+gRlsKLcXG7g==
+hds-design-tokens@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/hds-design-tokens/-/hds-design-tokens-2.3.0.tgz#0500a03b1564d9f0d53893d8cea491ffcc006f40"
+  integrity sha512-8mJIjx38520KOpqexQ7BMJTulT6vtLXBAnzWr5qy2TkrusLrVE88LYXHTxly905RI3+sy78G9rJV6pLNxDjxzA==
 
-hds-react@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/hds-react/-/hds-react-2.1.1.tgz#a112e974755b85ab713c924b4ed77f0df69f7ad1"
-  integrity sha512-YkqFyZEOx5OKg20lOLDTz/9VGU0JrfrRUOKTWf0LZtbuRNmTWnE6nzG0JJFTltFJFxItpWtQaeE4Q6uQk/172Q==
+hds-react@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/hds-react/-/hds-react-2.3.0.tgz#22cf892f5c3f7cff3b57af61cb9a06dd8953a099"
+  integrity sha512-jLWV5M+B4Quyu/9RiMr9113aL8a0jE5srCvknDOPNS0MsKudYwVVMCa5XMUoCWFUiPJfMynNBNgrfaQzN62JTA==
   dependencies:
     "@babel/runtime" "7.11.2"
     "@emotion/styled-base" "^11.0.0"
     "@juggle/resize-observer" "3.2.0"
     "@popperjs/core" "2.5.3"
     "@react-aria/visually-hidden" "3.2.0"
+    "@types/cookie" "^0.4.1"
+    cookie "^0.4.1"
     date-fns "2.16.1"
     downshift "6.0.6"
-    hds-core "2.1.1"
+    hds-core "2.3.0"
+    lodash.get "^4.4.2"
     lodash.isequal "4.5.0"
     lodash.isfunction "3.0.9"
+    lodash.isobject "3.0.2"
+    lodash.isundefined "3.0.1"
+    lodash.pick "^4.4.0"
     lodash.pickby "^4.6.0"
     lodash.uniqueid "4.0.1"
     lodash.xor "^4.5.0"
@@ -4491,6 +4497,11 @@ lodash-es@^4.17.21:
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
   integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
 
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+  integrity sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==
+
 lodash.isequal@4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
@@ -4501,10 +4512,25 @@ lodash.isfunction@3.0.9:
   resolved "https://registry.yarnpkg.com/lodash.isfunction/-/lodash.isfunction-3.0.9.tgz#06de25df4db327ac931981d1bdb067e5af68d051"
   integrity sha512-AirXNj15uRIMMPihnkInB4i3NHeb4iBtNg9WRWuK2o31S+ePwwNmDPaTL3o7dTJ+VXNZim7rFs4rxN4YU1oUJw==
 
+lodash.isobject@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/lodash.isobject/-/lodash.isobject-3.0.2.tgz#3c8fb8d5b5bf4bf90ae06e14f2a530a4ed935e1d"
+  integrity sha512-3/Qptq2vr7WeJbB4KHUSKlq8Pl7ASXi3UG6CMbBm8WRtXi8+GHm7mKaU3urfpSEzWe2wCIChs6/sdocUsTKJiA==
+
+lodash.isundefined@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/lodash.isundefined/-/lodash.isundefined-3.0.1.tgz#23ef3d9535565203a66cefd5b830f848911afb48"
+  integrity sha512-MXB1is3s899/cD8jheYYE2V9qTHwKvt+npCwpD+1Sxm3Q3cECXCiYHjeHWXNwr6Q0SOBPrYUDxendrO6goVTEA==
+
 lodash.merge@4.6.2, lodash.merge@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
   integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
+
+lodash.pick@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/lodash.pick/-/lodash.pick-4.4.0.tgz#52f05610fff9ded422611441ed1fc123a03001b3"
+  integrity sha512-hXt6Ul/5yWjfklSGvLQl8vM//l3FtyHZeuelpzK6mm99pNvN9yTDruNZPEJZD1oWrqo+izBmB7oUfWgcCX7s4Q==
 
 lodash.pickby@^4.6.0:
   version "4.6.0"
