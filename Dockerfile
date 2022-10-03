@@ -67,8 +67,6 @@ USER root
 RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
 RUN yum -y install yarn
 
-USER default
-
 ENV YARN_VERSION 1.22.4
 RUN yarn policies set-version $YARN_VERSION
 
