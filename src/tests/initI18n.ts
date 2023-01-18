@@ -4,10 +4,14 @@ import { initReactI18next } from 'react-i18next';
 
 import common from '../../public/locales/fi/common.json';
 import enrolment from '../../public/locales/fi/enrolment.json';
+import reservation from '../../public/locales/fi/reservation.json';
+import summary from '../../public/locales/fi/summary.json';
 
 const translations = {
   common,
   enrolment,
+  reservation,
+  summary,
 };
 
 i18n.use(initReactI18next).init({

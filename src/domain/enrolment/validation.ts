@@ -37,15 +37,13 @@ export const isAboveMinAge = (
         key: VALIDATION_MESSAGE_KEYS.AGE_MIN,
         min: parseInt(minAge),
       }),
-      (dateStr) => {
-        if (dateStr && isValidDate(dateStr)) {
-          return isBefore(
-            stringToDate(dateStr),
-            subYears(endOfDay(new Date()), parseInt(minAge))
-          );
-        }
-        return true;
-      }
+      (dateStr) =>
+        dateStr && isValidDate(dateStr)
+          ? isBefore(
+              stringToDate(dateStr),
+              subYears(endOfDay(new Date()), parseInt(minAge))
+            )
+          : true
     );
   } else {
     return schema;

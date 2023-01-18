@@ -8,28 +8,42 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import { appWithTranslation } from 'next-i18next';
+import { Session } from 'next-auth';
+import { SessionProvider } from 'next-auth/react';
+import { appWithTranslation, SSRConfig } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import React from 'react';
 import { ToastContainer } from 'react-toastify';
 
+import CookieConsent from '../domain/app/cookieConsent/CookieConsent';
 import PageLayout from '../domain/app/layout/pageLayout/PageLayout';
+import ApiTokenUpdater from '../domain/auth/ApiTokenUpdater';
 
-const MyApp = ({ Component, pageProps }: AppProps) => {
+type Props = {
+  dehydratedState?: unknown;
+  session?: Session | null;
+} & SSRConfig;
+
+const MyApp = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps<Props>) => {
   const [queryClient] = React.useState(() => new QueryClient());
 
   return (
-    // @ts-ignore
-    <QueryClientProvider client={queryClient}>
-      {/* @ts-ignore */}
-      <Hydrate state={pageProps.dehydratedState}>
-        <ToastContainer hideProgressBar={true} theme="colored" />
-        <PageLayout {...pageProps}>
-          <Component {...pageProps} />
-        </PageLayout>
-      </Hydrate>
-    </QueryClientProvider>
+    <SessionProvider session={session} refetchInterval={10}>
+      <ApiTokenUpdater />
+      <QueryClientProvider client={queryClient}>
+        <Hydrate state={pageProps.dehydratedState}>
+          <CookieConsent />
+          <ToastContainer hideProgressBar={true} theme="colored" />
+          <PageLayout {...pageProps}>
+            <Component {...pageProps} />
+          </PageLayout>
+        </Hydrate>
+      </QueryClientProvider>
+    </SessionProvider>
   );
 };
 
-export default appWithTranslation(MyApp);
+export default appWithTranslation<AppProps<Props>>(MyApp);

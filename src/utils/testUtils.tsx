@@ -17,6 +17,8 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { RequestHandler } from 'msw';
+import { Session } from 'next-auth';
+import { SessionProvider } from 'next-auth/react';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import { NextRouter } from 'next/router';
 import React from 'react';
@@ -39,7 +41,7 @@ export const escKeyPressHelper = (): boolean =>
 
 const customRender: CustomRender = (
   ui,
-  { path = '/', query = {}, router = {} } = {}
+  { path = '/', query = {}, router = {}, session = null } = {}
 ) => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -62,10 +64,12 @@ const customRender: CustomRender = (
           ...(query ? { query } : {}),
         }}
       >
-        {/* @ts-ignore */}
-        <QueryClientProvider client={queryClient}>
-          {children as React.ReactElement}
-        </QueryClientProvider>
+        <SessionProvider session={session}>
+          {/* @ts-ignore */}
+          <QueryClientProvider client={queryClient}>
+            {children as React.ReactElement}
+          </QueryClientProvider>
+        </SessionProvider>
       </RouterContext.Provider>
     );
   };
@@ -79,12 +83,13 @@ const mockRouter: NextRouter = {
   route: '/',
   asPath: '/',
   query: {},
+  back: jest.fn(() => Promise.resolve(true)),
+  beforePopState: jest.fn(() => Promise.resolve(true)),
+  forward: jest.fn(() => Promise.resolve(true)),
+  prefetch: jest.fn(() => Promise.resolve()),
   push: jest.fn(() => Promise.resolve(true)),
   replace: jest.fn(() => Promise.resolve(true)),
   reload: jest.fn(() => Promise.resolve(true)),
-  prefetch: jest.fn(() => Promise.resolve()),
-  back: jest.fn(() => Promise.resolve(true)),
-  beforePopState: jest.fn(() => Promise.resolve(true)),
   events: {
     on: jest.fn(),
     off: jest.fn(),
@@ -99,6 +104,7 @@ const mockRouter: NextRouter = {
 export type CustomRenderOptions = {
   path?: string;
   query?: ParsedUrlQuery;
+  session?: Session | null;
   router?: Partial<NextRouter>;
 };
 

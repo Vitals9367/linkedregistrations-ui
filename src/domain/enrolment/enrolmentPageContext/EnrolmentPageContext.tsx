@@ -1,29 +1,47 @@
-import { createContext, useState } from 'react';
+import React, { createContext, FC, PropsWithChildren, useState } from 'react';
 
-type EnrolmentPageContext = {
+import useMountedState from '../../../hooks/useMountedState';
+import { ENROLMENT_MODALS } from '../constants';
+import PersonsAddedToWaitingListModal from '../modals/personsAddedToWaitingListModal/PersonsAddedToWaitingListModal';
+
+export type EnrolmentPageContextProps = {
+  openModal: ENROLMENT_MODALS | null;
   openParticipant: number | null;
+  setOpenModal: (state: ENROLMENT_MODALS | null) => void;
   setOpenParticipant: (index: number | null) => void;
   toggleOpenParticipant: (index: number) => void;
 };
 
-export const enrolmentPageContextDefaultValue: EnrolmentPageContext = {
-  openParticipant: 0,
-  setOpenParticipant:
-    /* istanbul ignore next */
-    () => undefined,
-  toggleOpenParticipant:
-    /* istanbul ignore next */
-    () => undefined,
-};
+export const EnrolmentPageContext = createContext<
+  EnrolmentPageContextProps | undefined
+>(undefined);
 
-export const useEnrolmentPageContextValue = (): EnrolmentPageContext => {
+export const EnrolmentPageProvider: FC<PropsWithChildren> = ({ children }) => {
   const [openParticipant, setOpenParticipant] = useState<number | null>(0);
+
+  const [openModal, setOpenModal] = useMountedState<ENROLMENT_MODALS | null>(
+    null
+  );
 
   const toggleOpenParticipant = (newIndex: number) => {
     setOpenParticipant(openParticipant === newIndex ? null : newIndex);
   };
 
-  return { openParticipant, setOpenParticipant, toggleOpenParticipant };
+  return (
+    <EnrolmentPageContext.Provider
+      value={{
+        openModal,
+        openParticipant,
+        setOpenModal,
+        setOpenParticipant,
+        toggleOpenParticipant,
+      }}
+    >
+      <PersonsAddedToWaitingListModal
+        isOpen={openModal === ENROLMENT_MODALS.PERSONS_ADDED_TO_WAITLIST}
+        onClose={() => setOpenModal(null)}
+      />
+      {children}
+    </EnrolmentPageContext.Provider>
+  );
 };
-
-export default createContext(enrolmentPageContextDefaultValue);

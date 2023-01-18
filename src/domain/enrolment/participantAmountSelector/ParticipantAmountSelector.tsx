@@ -1,23 +1,26 @@
 import { useField } from 'formik';
-import isEqual from 'lodash/isEqual';
 import { useTranslation } from 'next-i18next';
 import React, { useState } from 'react';
 
 import Button from '../../../common/components/button/Button';
 import NumberInput from '../../../common/components/numberInput/NumberInput';
+import { reportError } from '../../app/sentry/utils';
 import { Registration } from '../../registration/types';
 import {
   getAttendeeCapacityError,
-  getFreeAttendeeCapacity,
+  getTotalAttendeeCapacity,
 } from '../../registration/utils';
-import { ENROLMENT_FIELDS } from '../constants';
+import { useUpdateReserveSeatsMutation } from '../../reserveSeats/mutation';
+import {
+  getSeatsReservationData,
+  setSeatsReservationData,
+} from '../../reserveSeats/utils';
+import { ENROLMENT_FIELDS, ENROLMENT_MODALS } from '../constants';
+import { useEnrolmentPageContext } from '../enrolmentPageContext/hooks/useEnrolmentPageContext';
+import { useEnrolmentServerErrorsContext } from '../enrolmentServerErrorsContext/hooks/useEnrolmentServerErrorsContext';
 import ConfirmDeleteParticipantModal from '../modals/confirmDeleteParticipantModal/ConfirmDeleteParticipantModal';
 import { AttendeeFields } from '../types';
-import {
-  getAttendeeDefaultInitialValues,
-  getEnrolmentReservationData,
-  updateEnrolmentReservationData,
-} from '../utils';
+import { getNewAttendees } from '../utils';
 import styles from './participantAmountSelector.module.scss';
 
 interface Props {
@@ -31,20 +34,21 @@ const ParticipantAmountSelector: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation(['enrolment', 'common']);
 
-  const [openModal, setOpenModal] = useState(false);
+  const { openModal, setOpenModal } = useEnrolmentPageContext();
+  const { setServerErrorItems, showServerErrors } =
+    useEnrolmentServerErrorsContext();
+
   const [saving, setSaving] = useState(false);
   const [participantsToDelete, setParticipantsToDelete] = useState(0);
 
   const [{ value: attendees }, , { setValue: setAttendees }] = useField<
     AttendeeFields[]
-  >({
-    name: ENROLMENT_FIELDS.ATTENDEES,
-  });
+  >({ name: ENROLMENT_FIELDS.ATTENDEES });
 
   const [participantAmount, setParticipantAmount] = useState(
-    Math.max(getEnrolmentReservationData(registration.id)?.participants ?? 0, 1)
+    Math.max(getSeatsReservationData(registration.id)?.seats ?? 0, 1)
   );
-  const freeCapacity = getFreeAttendeeCapacity(registration);
+  const freeCapacity = getTotalAttendeeCapacity(registration);
 
   const handleParticipantAmountChange: React.ChangeEventHandler<
     HTMLInputElement
@@ -58,47 +62,77 @@ const ParticipantAmountSelector: React.FC<Props> = ({
     t
   );
 
-  const attendeeInitialValues = React.useMemo(
-    () => getAttendeeDefaultInitialValues(registration),
-    [registration]
-  );
-
-  const updateParticipantAmount = () => {
-    /* istanbul ignore next */
-    if (participantAmount !== attendees.length) {
-      setSaving(true);
-
-      const filledAttendees = attendees.filter(
-        (a) => !isEqual(a, attendeeInitialValues)
+  const updateReserveSeatsMutation = useUpdateReserveSeatsMutation({
+    onError: (error, variables) => {
+      showServerErrors(
+        { error: JSON.parse(error.message) },
+        'seatsReservation'
       );
-      const newAttendees = [
-        ...filledAttendees,
-        ...Array(Math.max(participantAmount - filledAttendees.length, 0)).fill(
-          attendeeInitialValues
-        ),
-      ].slice(0, participantAmount);
 
-      setAttendees(newAttendees);
-      // TODO: Update reservation from API when BE is ready
-      updateEnrolmentReservationData(registration, newAttendees.length);
+      reportError({
+        data: {
+          error: JSON.parse(error.message),
+          payload: variables,
+          payloadAsString: JSON.stringify(variables),
+        },
+        message: 'Failed to update reserve seats',
+      });
 
       setSaving(false);
       closeModal();
+    },
+    onSuccess: (seatsReservation) => {
+      const newAttendees = getNewAttendees({
+        attendees: attendees,
+        registration,
+        seatsReservation,
+      });
+
+      setAttendees(newAttendees);
+      setSeatsReservationData(registration.id, seatsReservation);
+
+      setSaving(false);
+
+      // Show modal to inform that some of the persons will be added to the waiting list
+      if (seatsReservation.waitlist_spots) {
+        setOpenModal(ENROLMENT_MODALS.PERSONS_ADDED_TO_WAITLIST);
+      } else {
+        closeModal();
+      }
+    },
+  });
+
+  const updateParticipantAmount = () => {
+    /* istanbul ignore else */
+    if (participantAmount !== attendees.length) {
+      setSaving(true);
+
+      const data = getSeatsReservationData(registration.id);
+
+      // Clear server errors
+      setServerErrorItems([]);
+
+      updateReserveSeatsMutation.mutate({
+        code: data?.code as string,
+        registration: registration.id,
+        seats: participantAmount,
+        waitlist: true,
+      });
     }
   };
 
   const closeModal = () => {
-    setOpenModal(false);
+    setOpenModal(null);
   };
 
-  const openParticipantModal = () => {
-    setOpenModal(true);
+  const openDeleteParticipantModal = () => {
+    setOpenModal(ENROLMENT_MODALS.DELETE);
   };
 
   const handleUpdateClick = () => {
     if (participantAmount < attendees.length) {
       setParticipantsToDelete(attendees.length - participantAmount);
-      openParticipantModal();
+      openDeleteParticipantModal();
     } else {
       updateParticipantAmount();
     }
@@ -107,7 +141,7 @@ const ParticipantAmountSelector: React.FC<Props> = ({
   return (
     <>
       <ConfirmDeleteParticipantModal
-        isOpen={openModal}
+        isOpen={openModal === ENROLMENT_MODALS.DELETE}
         isSaving={saving}
         onClose={closeModal}
         onDelete={updateParticipantAmount}
@@ -116,12 +150,12 @@ const ParticipantAmountSelector: React.FC<Props> = ({
       <div className={styles.participantAmountSelector}>
         <NumberInput
           id="participant-amount-field"
-          minusStepButtonAriaLabel={t(
-            'common:numberInput.minusStepButtonAriaLabel'
-          )}
-          plusStepButtonAriaLabel={t(
-            'common:numberInput.plusStepButtonAriaLabel'
-          )}
+          minusStepButtonAriaLabel={
+            t('common:numberInput.minusStepButtonAriaLabel') as string
+          }
+          plusStepButtonAriaLabel={
+            t('common:numberInput.plusStepButtonAriaLabel') as string
+          }
           disabled={disabled}
           errorText={attendeeCapacityError}
           invalid={!!attendeeCapacityError}

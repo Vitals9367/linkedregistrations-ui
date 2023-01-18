@@ -1,0 +1,26 @@
+.textWithIcon {
+  display: grid;
+  align-items: center;
+  grid-template-columns: auto 1fr;
+
+  svg {
+    align-self: center;
+    margin-right: var(--spacing-2-xs);
+  }
+
+  .text {
+    align-self: center;
+  }
+}
+
+.sizeS {
+  font-size: var(--fontsize-body-s);
+}
+
+.sizeM {
+  font-size: var(--fontsize-body-m);
+}
+
+.sizeL {
+  font-size: var(--fontsize-body-l);
+}

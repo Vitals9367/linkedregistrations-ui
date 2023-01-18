@@ -50,3 +50,14 @@ test('should call onClick', async () => {
   await user.click(toggleButton);
   expect(onClick).toBeCalled();
 });
+
+test('should call onClick by pressing enter', async () => {
+  const user = userEvent.setup();
+  const onClick = jest.fn();
+
+  renderComponent({ open: true, onClick });
+
+  const toggleButton = screen.getByRole('button', { name: toggleButtonLabel });
+  await user.type(toggleButton, '{enter}');
+  expect(onClick).toBeCalled();
+});

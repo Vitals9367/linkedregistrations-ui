@@ -9,11 +9,11 @@ type UseSelectLanguageState = {
   languageOptions: OptionType[];
   changeLanguage: (
     language: OptionType
-  ) => (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
+  ) => (event?: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
 
 const useSelectLanguage = (): UseSelectLanguageState => {
-  const { t } = useTranslation('common');
+  const { i18n, t } = useTranslation('common');
   const router = useRouter();
 
   const languageOptions: OptionType[] = React.useMemo(() => {
@@ -25,9 +25,12 @@ const useSelectLanguage = (): UseSelectLanguageState => {
 
   const changeLanguage =
     (newLanguage: OptionType) =>
-    (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-      event.preventDefault();
-      router.push(router.asPath, router.asPath, { locale: newLanguage.value });
+    async (event?: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+      event?.preventDefault();
+      await router.push(router.asPath, router.asPath, {
+        locale: newLanguage.value,
+      });
+      i18n.changeLanguage(newLanguage.value);
     };
 
   return { changeLanguage, languageOptions };

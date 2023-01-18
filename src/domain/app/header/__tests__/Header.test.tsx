@@ -2,16 +2,26 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-var-requires */
 import i18n from 'i18next';
+import { rest } from 'msw';
+import { Session } from 'next-auth';
+import * as nextAuth from 'next-auth/react';
 import mockRouter from 'next-router-mock';
+import singletonRouter from 'next/router';
 import React from 'react';
 
+import { fakeUser } from '../../../../utils/mockDataUtils';
+import { fakeAuthenticatedSession } from '../../../../utils/mockSession';
 import {
   configure,
   render,
   screen,
+  setQueryMocks,
   userEvent,
   waitFor,
 } from '../../../../utils/testUtils';
+import { TEST_REGISTRATION_ID } from '../../../registration/constants';
+import { TEST_USER_ID } from '../../../user/constants';
+import { ROUTES } from '../../routes/constants';
 import Header from '../Header';
 
 configure({ defaultHidden: true });
@@ -24,7 +34,7 @@ beforeEach(() => {
   i18n.changeLanguage('fi');
 });
 
-const renderComponent = () => render(<Header />);
+const renderComponent = (session?: Session) => render(<Header />, { session });
 
 const getElement = (key: 'enOption' | 'menuButton' | 'svOption') => {
   switch (key) {
@@ -45,30 +55,45 @@ const getElement = (key: 'enOption' | 'menuButton' | 'svOption') => {
   }
 };
 
-const getElements = (key: 'appName' | 'languageSelector') => {
+const getElements = (
+  key:
+    | 'appName'
+    | 'backToEnrolmentFormLink'
+    | 'languageSelector'
+    | 'signInButton'
+    | 'signOutLink'
+) => {
   switch (key) {
     case 'appName':
       return screen.getAllByRole('link', {
         name: /linked registrations/i,
       });
+    case 'backToEnrolmentFormLink':
+      return screen.getAllByRole('link', {
+        name: /palaa ilmoittautumiskaavakkeeseen/i,
+      });
     case 'languageSelector':
       return screen.getAllByRole('button', {
         name: /suomi - kielivalikko/i,
       });
+    case 'signInButton':
+      return screen.getAllByRole('button', { name: /kirjaudu sisään/i });
+    case 'signOutLink':
+      return screen.getAllByRole('link', { name: /kirjaudu ulos/i });
   }
 };
 
 test('should route to home page by clicking application name', async () => {
   const user = userEvent.setup();
 
-  mockRouter.setCurrentUrl('/registrations');
+  singletonRouter.push({ pathname: '/registrations' });
   renderComponent();
   expect(mockRouter.asPath).toBe('/registrations');
 
   const appName = getElements('appName')[0];
   await user.click(appName);
 
-  expect(mockRouter.asPath).toBe('/fi');
+  expect(mockRouter.asPath).toBe('/');
 });
 
 test('should show mobile menu', async () => {
@@ -101,4 +126,60 @@ test('should change language', async () => {
   const svOption = getElement('svOption');
   await user.click(svOption);
   expect(mockRouter.locale).toBe('sv');
+});
+
+test('should start login process', async () => {
+  const user = userEvent.setup();
+  jest.spyOn(nextAuth, 'signIn').mockImplementation();
+  renderComponent();
+
+  const signInButtons = getElements('signInButton');
+  await user.click(signInButtons[0]);
+
+  expect(nextAuth.signIn).toBeCalledWith('tunnistamo');
+});
+
+test('should start logout process', async () => {
+  const user = userEvent.setup();
+  jest.spyOn(nextAuth, 'signOut').mockImplementation();
+
+  const username = 'Username';
+  const userData = fakeUser({ display_name: username });
+
+  const mocks = [
+    rest.get(`*/user/${TEST_USER_ID}/`, (req, res, ctx) =>
+      res(ctx.status(200), ctx.json(userData))
+    ),
+  ];
+  setQueryMocks(...mocks);
+
+  const session = fakeAuthenticatedSession();
+  renderComponent(session);
+
+  const userMenuButton = await screen.findByRole(
+    'button',
+    { name: username },
+    { timeout: 10000 }
+  );
+  await user.click(userMenuButton);
+
+  const signOutLinks = getElements('signOutLink');
+  await user.click(signOutLinks[0]);
+
+  await waitFor(() => expect(nextAuth.signOut).toBeCalled());
+});
+
+test('should show back to enrolment form link', async () => {
+  const user = userEvent.setup();
+
+  singletonRouter.push({
+    pathname: ROUTES.CREATE_ENROLMENT_SUMMARY,
+    query: { registrationId: TEST_REGISTRATION_ID },
+  });
+  renderComponent();
+
+  const backToEnrolmentFormLinks = getElements('backToEnrolmentFormLink');
+  await user.click(backToEnrolmentFormLinks[0]);
+
+  expect(mockRouter.asPath).toBe('/registration/1/enrolment/create');
 });

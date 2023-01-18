@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { ErrorMessage, FieldProps } from 'formik';
-import { CheckboxProps, IconAngleDown, IconAngleUp } from 'hds-react';
+import { IconAngleDown, IconAngleUp } from 'hds-react';
 import { useTranslation } from 'next-i18next';
 import React from 'react';
 
@@ -9,20 +9,25 @@ import { OptionType } from '../../../types';
 import { getErrorText } from '../../../utils/validationUtils';
 import Button from '../button/Button';
 import Checkbox from '../checkbox/Checkbox';
+import { RequiredIndicator } from '../requiredIndicator/RequiredIndicator';
 import styles from './checkboxGroupField.module.scss';
 
 type Columns = 1 | 2 | 3 | 4;
 
-export type CheckboxGroupFieldProps = {
-  className?: string;
-  columns: Columns;
-  disabledOptions: string[];
-  errorName?: string;
-  min: number;
-  options: OptionType[];
-  visibleOptionAmount?: number;
-} & FieldProps &
-  CheckboxProps;
+export type CheckboxGroupFieldProps = React.PropsWithChildren<
+  {
+    className?: string;
+    columns: Columns;
+    disabledOptions: string[];
+    errorName?: string;
+    label?: string;
+    min: number;
+    options: OptionType[];
+    required?: boolean;
+    visibleOptionAmount?: number;
+  } & FieldProps &
+    React.HTMLProps<HTMLFieldSetElement>
+>;
 
 const CheckboxGroupField: React.FC<CheckboxGroupFieldProps> = ({
   className,
@@ -30,10 +35,11 @@ const CheckboxGroupField: React.FC<CheckboxGroupFieldProps> = ({
   disabled,
   disabledOptions,
   field: { name, onBlur, value, ...field },
-  form,
   errorName,
+  label,
   min = 0,
   options,
+  required,
   visibleOptionAmount,
   ...rest
 }) => {
@@ -55,13 +61,15 @@ const CheckboxGroupField: React.FC<CheckboxGroupFieldProps> = ({
   };
 
   return (
-    <>
+    <fieldset className={classNames(styles.checkboxGroup, className)} {...rest}>
+      <legend className={styles.label}>
+        {label} {required && <RequiredIndicator />}
+      </legend>
       <div
         id={errorName || name}
         className={classNames(
           styles.checkboxsWrapper,
-          styles[`columns${columns}`],
-          className
+          styles[`columns${columns}`]
         )}
       >
         {visibleOptions.map((option, index) => {
@@ -69,9 +77,8 @@ const CheckboxGroupField: React.FC<CheckboxGroupFieldProps> = ({
 
           return (
             <Checkbox
-              key={index}
-              {...rest}
               {...field}
+              key={index}
               id={`${name}-${option.value}`}
               name={name}
               checked={value.includes(option.value)}
@@ -92,7 +99,7 @@ const CheckboxGroupField: React.FC<CheckboxGroupFieldProps> = ({
           <div className={styles.errorText}>{getErrorText(error, true, t)}</div>
         )}
       </ErrorMessage>
-      {visibleOptionAmount && (
+      {visibleOptionAmount && options.length > visibleOptionAmount && (
         <div className={styles.buttonWrapper}>
           <Button
             iconLeft={showAll ? <IconAngleUp /> : <IconAngleDown />}
@@ -103,7 +110,7 @@ const CheckboxGroupField: React.FC<CheckboxGroupFieldProps> = ({
           </Button>
         </div>
       )}
-    </>
+    </fieldset>
   );
 };
 

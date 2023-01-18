@@ -1,0 +1,21 @@
+@import '../../../../styles/breakpoints.scss';
+
+.emailRow,
+.membershipNumberRow,
+.nativeLanguageRow {
+  display: grid;
+  grid-gap: var(--spacing-m);
+  grid-template-columns: 1fr;
+
+  @include medium-up {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.textArea {
+  --textarea-height: 63px !important;
+
+  label {
+    font-weight: 700;
+  }
+}

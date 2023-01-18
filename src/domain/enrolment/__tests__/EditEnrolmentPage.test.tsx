@@ -58,27 +58,27 @@ const getElement = (
     case 'cancelButton':
       return screen.getByRole('button', { name: /peruuta ilmoittautuminen/i });
     case 'cityInput':
-      return screen.getByRole('textbox', { name: /kaupunki/i });
+      return screen.getByLabelText(/kaupunki/i);
     case 'dateOfBirthInput':
-      return screen.getByRole('textbox', { name: /syntymäaika/i });
+      return screen.getByLabelText(/syntymäaika/i);
     case 'emailCheckbox':
-      return screen.getByRole('checkbox', { name: /sähköpostilla/i });
+      return screen.getByLabelText(/sähköpostilla/i);
     case 'emailInput':
-      return screen.getByRole('textbox', { name: /sähköpostiosoite/i });
+      return screen.getByLabelText(/sähköpostiosoite/i);
     case 'nameInput':
-      return screen.getByRole('textbox', { name: /nimi/i });
+      return screen.getByLabelText(/nimi/i);
     case 'nativeLanguageButton':
       return screen.getByRole('button', { name: /äidinkieli/i });
     case 'phoneCheckbox':
-      return screen.getByRole('checkbox', { name: /tekstiviestillä/i });
+      return screen.getByLabelText(/tekstiviestillä/i);
     case 'phoneInput':
-      return screen.getByRole('textbox', { name: /puhelinnumero/i });
+      return screen.getByLabelText(/puhelinnumero/i);
     case 'serviceLanguageButton':
       return screen.getByRole('button', { name: /asiointikieli/i });
     case 'streetAddressInput':
-      return screen.getByRole('textbox', { name: /katuosoite/i });
+      return screen.getByLabelText(/katuosoite/i);
     case 'zipInput':
-      return screen.getByRole('textbox', { name: /postinumero/i });
+      return screen.getByLabelText(/postinumero/i);
   }
 };
 

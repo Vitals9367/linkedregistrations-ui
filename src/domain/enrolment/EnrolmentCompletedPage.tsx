@@ -17,7 +17,6 @@ import { Registration } from '../registration/types';
 import { getRegistrationFields } from '../registration/utils';
 import ConfirmationMessage from './confirmationMessage/ConfirmationMessage';
 import { ENROLMENT_QUERY_PARAMS } from './constants';
-import { useEnrolmentQuery } from './query';
 
 type Props = {
   event: Event;
@@ -80,15 +79,9 @@ const EnrolmentCompletedPageWrapper: React.FC = () => {
     { enabled: !!registration?.event }
   );
 
-  const { data: enrolment, isLoading: isLoadingEnrolment } = useEnrolmentQuery({
-    cancellationCode: query.accessCode as string,
-  });
-
   return (
-    <LoadingSpinner
-      isLoading={isLoadingEnrolment || isLoadingEvent || isLoadingRegistration}
-    >
-      {enrolment && event && registration ? (
+    <LoadingSpinner isLoading={isLoadingEvent || isLoadingRegistration}>
+      {event && registration ? (
         <EnrolmentCompletedPage event={event} registration={registration} />
       ) : (
         <NotFound />

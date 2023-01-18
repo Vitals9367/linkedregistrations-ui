@@ -12,6 +12,7 @@ export type AttendeeFields = {
   [ATTENDEE_FIELDS.CITY]: string;
   [ATTENDEE_FIELDS.DATE_OF_BIRTH]: string;
   [ATTENDEE_FIELDS.EXTRA_INFO]: string;
+  [ATTENDEE_FIELDS.IN_WAITING_LIST]: boolean;
   [ATTENDEE_FIELDS.NAME]: string;
   [ATTENDEE_FIELDS.STREET_ADDRESS]: string;
   [ATTENDEE_FIELDS.ZIP]: string;
@@ -29,7 +30,7 @@ export type EnrolmentFormFields = {
   [ENROLMENT_FIELDS.SERVICE_LANGUAGE]: string;
 };
 
-export type CreateEnrolmentMutationInput = {
+export type SignupInput = {
   city?: stringOrNull;
   date_of_birth?: stringOrNull;
   email?: stringOrNull;
@@ -39,7 +40,6 @@ export type CreateEnrolmentMutationInput = {
   native_language?: stringOrNull;
   notifications?: NOTIFICATION_TYPE;
   phone_number?: stringOrNull;
-  registration: string;
   service_language?: stringOrNull;
   street_address?: stringOrNull;
   zipcode?: stringOrNull;
@@ -64,13 +64,26 @@ export type Enrolment = {
   zipcode?: stringOrNull;
 };
 
-export type EnrolmentQueryVariables = {
-  cancellationCode: string;
+export type CreateEnrolmentMutationInput = {
+  reservation_code: string;
+  signups: SignupInput[];
 };
 
-export type EnrolmentReservation = {
-  expires: number;
-  participants: number;
-  started: number;
-  session: string;
+export type Person = {
+  id: number;
+  name: string;
+};
+
+export type PeopleResponse = {
+  count: number;
+  people: Person[];
+};
+
+export type CreateEnrolmentResponse = {
+  attending: PeopleResponse;
+  waitlisted: PeopleResponse;
+};
+
+export type EnrolmentQueryVariables = {
+  cancellationCode: string;
 };

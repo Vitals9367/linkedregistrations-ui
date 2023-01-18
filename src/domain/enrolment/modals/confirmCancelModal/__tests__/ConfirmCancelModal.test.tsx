@@ -27,10 +27,10 @@ test('should call onCancel', async () => {
   const user = userEvent.setup();
   renderComponent({ onCancel });
 
-  const cancelEventButton = screen.getByRole('button', {
+  const cancelButton = screen.getByRole('button', {
     name: 'Peruuta ilmoittautuminen',
   });
-  await act(async () => await user.click(cancelEventButton));
+  await act(async () => await user.click(cancelButton));
   expect(onCancel).toBeCalled();
 });
 

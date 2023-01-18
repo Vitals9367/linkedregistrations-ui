@@ -1,7 +1,8 @@
+import classNames from 'classnames';
 import { FastField as Field } from 'formik';
 import { Fieldset, IconTrash } from 'hds-react';
 import { useTranslation } from 'next-i18next';
-import React, { useContext } from 'react';
+import React from 'react';
 
 import Accordion from '../../../../../common/components/accordion/Accordion';
 import DateInputField from '../../../../../common/components/formFields/DateInputField';
@@ -10,7 +11,8 @@ import TextInputField from '../../../../../common/components/formFields/TextInpu
 import FormGroup from '../../../../../common/components/formGroup/FormGroup';
 import useLocale from '../../../../../hooks/useLocale';
 import { ATTENDEE_FIELDS } from '../../../constants';
-import EnrolmentPageContext from '../../../enrolmentPageContext/EnrolmentPageContext';
+import { useEnrolmentPageContext } from '../../../enrolmentPageContext/hooks/useEnrolmentPageContext';
+import InWaitingListInfo from '../../../inWaitingListInfo/InWaitingListInfo';
 import { AttendeeFields } from '../../../types';
 import styles from './attendee.module.scss';
 
@@ -38,15 +40,14 @@ const Attendee: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation(['enrolment']);
   const locale = useLocale();
-  const { openParticipant, toggleOpenParticipant } =
-    useContext(EnrolmentPageContext);
+  const { openParticipant, toggleOpenParticipant } = useEnrolmentPageContext();
 
   return (
     <Accordion
       deleteButton={
         showDelete && !formDisabled ? (
           <button
-            aria-label={t('buttonDeleteAttendee')}
+            aria-label={t('buttonDeleteAttendee') as string}
             className={styles.deleteButton}
             onClick={onDelete}
             type="button"
@@ -57,6 +58,9 @@ const Attendee: React.FC<Props> = ({
       }
       onClick={() => toggleOpenParticipant(index)}
       open={openParticipant === index}
+      toggleButtonIcon={
+        attendee.inWaitingList ? <InWaitingListInfo /> : undefined
+      }
       toggleButtonLabel={
         attendee.name || t('attendeeDefaultTitle', { index: index + 1 })
       }
@@ -74,7 +78,11 @@ const Attendee: React.FC<Props> = ({
           />
         </FormGroup>
         <FormGroup>
-          <div className={styles.streetAddressRow}>
+          <div
+            className={classNames(styles.streetAddressRow, {
+              [styles.readOnly]: readOnly,
+            })}
+          >
             <Field
               name={getFieldName(attendeePath, ATTENDEE_FIELDS.STREET_ADDRESS)}
               component={TextInputField}
@@ -86,20 +94,30 @@ const Attendee: React.FC<Props> = ({
             />
             <Field
               name={getFieldName(attendeePath, ATTENDEE_FIELDS.DATE_OF_BIRTH)}
-              component={DateInputField}
               disabled={formDisabled}
               label={t(`labelDateOfBirth`)}
               language={locale}
-              maxDate={new Date()}
-              minDate={new Date(`${new Date().getFullYear() - 100}-01-01`)}
               placeholder={readOnly ? '' : t(`placeholderDateOfBirth`)}
               readOnly={readOnly}
               required
+              {...(readOnly
+                ? { component: TextInputField }
+                : {
+                    component: DateInputField,
+                    maxDate: new Date(),
+                    minDate: new Date(
+                      `${new Date().getFullYear() - 100}-01-01`
+                    ),
+                  })}
             />
           </div>
         </FormGroup>
         <FormGroup>
-          <div className={styles.zipRow}>
+          <div
+            className={classNames(styles.zipRow, {
+              [styles.readOnly]: readOnly,
+            })}
+          >
             <Field
               name={getFieldName(attendeePath, ATTENDEE_FIELDS.ZIP)}
               component={TextInputField}

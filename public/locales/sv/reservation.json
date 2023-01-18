@@ -1,0 +1,7 @@
+{
+  "reservationTimeExpiredModal": {
+    "buttonTryAgain": "Försök igen",
+    "text": "Tyvärr har bokningstiden gått ut.",
+    "title": "Tiden är ute."
+  }
+}

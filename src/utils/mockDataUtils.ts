@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { faker } from '@faker-js/faker';
+import addMinutes from 'date-fns/addMinutes';
 import merge from 'lodash/merge';
 
 import { LocalisedObject, Meta } from '../domain/api/types';
@@ -24,6 +25,8 @@ import {
   Registration,
   RegistrationsResponse,
 } from '../domain/registration/types';
+import { SeatsReservation } from '../domain/reserveSeats/types';
+import { User } from '../domain/user/types';
 import generateAtId from './generateAtId';
 
 export const fakeEnrolment = (overrides?: Partial<Enrolment>): Enrolment => {
@@ -278,6 +281,48 @@ export const fakeRegistration = (
       maximum_attendee_capacity: null,
       minimum_attendee_capacity: null,
       waiting_list_capacity: null,
+    },
+    overrides
+  );
+};
+
+export const fakeSeatsReservation = (
+  overrides?: Partial<SeatsReservation>
+): SeatsReservation => {
+  return merge<SeatsReservation, typeof overrides>(
+    {
+      code: faker.datatype.uuid(),
+      expiration: addMinutes(new Date(), 30).toISOString(),
+      registration: TEST_REGISTRATION_ID,
+      seats: 1,
+      timestamp: new Date().toISOString(),
+      seats_at_event: 1,
+      waitlist_spots: 0,
+    },
+    overrides
+  );
+};
+
+export const fakeUser = (overrides?: Partial<User>): User => {
+  const uuid = overrides?.uuid || faker.datatype.uuid();
+  return merge<User, typeof overrides>(
+    {
+      admin_organizations: [],
+      date_joined: null,
+      department_name: faker.random.words(),
+      display_name: faker.random.words(),
+      email: faker.internet.email(),
+      first_name: faker.name.firstName(),
+      is_staff: false,
+      last_login: '',
+      last_name: faker.name.lastName(),
+      organization: faker.random.words(),
+      organization_memberships: [],
+      username: faker.datatype.uuid(),
+      uuid,
+      '@id': generateAtId(uuid, 'user'),
+      '@context': 'http://schema.org',
+      '@type': 'User',
     },
     overrides
   );

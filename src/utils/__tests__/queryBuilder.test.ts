@@ -1,7 +1,7 @@
 import { EventTypeId, PublicationStatus } from '../../domain/event/constants';
 import queryBuilder, { VariableToKeyItem } from '../queryBuilder';
 
-describe('eventsPathBuilder function', () => {
+describe('queryBuilder function', () => {
   const cases: [VariableToKeyItem[], string][] = [
     [[{ key: 'adminUser', value: true }], '?adminUser=true'],
     [

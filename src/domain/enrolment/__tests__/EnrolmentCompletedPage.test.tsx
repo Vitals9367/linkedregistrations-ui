@@ -12,11 +12,7 @@ import {
 import { event, eventOverrides } from '../../event/__mocks__/event';
 import { TEST_EVENT_ID } from '../../event/constants';
 import { TEST_REGISTRATION_ID } from '../../registration/constants';
-import { enrolment } from '../__mocks__/enrolment';
-import {
-  ENROLMENT_QUERY_PARAMS,
-  TEST_ENROLMENT_CANCELLATION_CODE,
-} from '../constants';
+import { ENROLMENT_QUERY_PARAMS } from '../constants';
 import EnrolmentCompletedPage from '../EnrolmentCompletedPage';
 
 const renderComponent = (query?: {
@@ -24,7 +20,6 @@ const renderComponent = (query?: {
 }) =>
   render(<EnrolmentCompletedPage />, {
     query: {
-      accessCode: TEST_ENROLMENT_CANCELLATION_CODE,
       registrationId: TEST_REGISTRATION_ID,
       ...query,
     },
@@ -58,14 +53,12 @@ const defaultMocks = [
   rest.get(`*/event/${TEST_EVENT_ID}/`, (req, res, ctx) =>
     res(ctx.status(200), ctx.json(event))
   ),
-  rest.get(`*/signup/*`, (req, res, ctx) =>
-    res(ctx.status(200), ctx.json(enrolment))
-  ),
 ];
 
 const { location } = window;
 
 beforeAll((): void => {
+  // @ts-ignore
   delete window.location;
   // @ts-ignore
   window.location = { href: '' };

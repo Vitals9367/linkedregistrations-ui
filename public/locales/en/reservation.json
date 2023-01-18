@@ -1,0 +1,7 @@
+{
+  "reservationTimeExpiredModal": {
+    "buttonTryAgain": "Try Again",
+    "text": "Unfortunately, the Reservation time has expired.",
+    "title": "Time’s Up."
+  }
+}

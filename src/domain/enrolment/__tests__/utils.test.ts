@@ -1,18 +1,31 @@
 import { fakeEnrolment, fakeRegistration } from '../../../utils/mockDataUtils';
 import { registration } from '../../registration/__mocks__/registration';
 import {
+  ATTENDEE_INITIAL_VALUES,
   ENROLMENT_INITIAL_VALUES,
   NOTIFICATIONS,
   NOTIFICATION_TYPE,
 } from '../constants';
+import { EnrolmentQueryVariables } from '../types';
 import {
+  enrolmentPathBuilder,
+  getAttendeeDefaultInitialValues,
   getEnrolmentDefaultInitialValues,
   getEnrolmentInitialValues,
   getEnrolmentNotificationsCode,
   getEnrolmentNotificationTypes,
   getEnrolmentPayload,
-  getRegistrationTimeLeft,
 } from '../utils';
+
+describe('enrolmentPathBuilder function', () => {
+  const cases: [EnrolmentQueryVariables, string][] = [
+    [{ cancellationCode: 'hel:123' }, '/signup/?cancellation_code=hel:123'],
+  ];
+
+  it.each(cases)('should build correct path', (variables, expectedPath) =>
+    expect(enrolmentPathBuilder(variables)).toBe(expectedPath)
+  );
+});
 
 describe('getEnrolmentNotificationsCode function', () => {
   it('should return correct notification core', () => {
@@ -32,24 +45,35 @@ describe('getEnrolmentNotificationsCode function', () => {
 });
 
 describe('getEnrolmentPayload function', () => {
+  const reservationCode = 'code';
   it('should return single enrolment as payload', () => {
-    expect(getEnrolmentPayload(ENROLMENT_INITIAL_VALUES, registration)).toEqual(
-      {
-        city: null,
-        date_of_birth: null,
-        email: null,
-        extra_info: '',
-        membership_number: '',
-        name: null,
-        native_language: null,
-        notifications: NOTIFICATION_TYPE.NO_NOTIFICATION,
-        phone_number: null,
-        registration: registration.id,
-        service_language: null,
-        street_address: null,
-        zipcode: null,
-      }
-    );
+    expect(
+      getEnrolmentPayload({
+        formValues: {
+          ...ENROLMENT_INITIAL_VALUES,
+          attendees: [ATTENDEE_INITIAL_VALUES],
+        },
+        reservationCode,
+      })
+    ).toEqual({
+      reservation_code: 'code',
+      signups: [
+        {
+          city: null,
+          date_of_birth: null,
+          email: null,
+          extra_info: '',
+          membership_number: '',
+          name: null,
+          native_language: null,
+          notifications: 'none',
+          phone_number: null,
+          service_language: null,
+          street_address: null,
+          zipcode: null,
+        },
+      ],
+    });
 
     const city = 'City',
       dateOfBirth = '10.10.1999',
@@ -63,8 +87,8 @@ describe('getEnrolmentPayload function', () => {
       serviceLanguage = 'sv',
       streetAddress = 'Street address',
       zipcode = '00100';
-    const payload = getEnrolmentPayload(
-      {
+    const payload = getEnrolmentPayload({
+      formValues: {
         ...ENROLMENT_INITIAL_VALUES,
         attendees: [
           {
@@ -73,6 +97,7 @@ describe('getEnrolmentPayload function', () => {
             city,
             dateOfBirth,
             extraInfo: '',
+            inWaitingList: false,
             name,
             streetAddress,
             zip: zipcode,
@@ -86,23 +111,69 @@ describe('getEnrolmentPayload function', () => {
         phoneNumber,
         serviceLanguage,
       },
-      registration
-    );
+      reservationCode,
+    });
 
     expect(payload).toEqual({
-      city,
-      date_of_birth: '1999-10-10',
-      email,
-      extra_info: extraInfo,
-      membership_number: membershipNumber,
-      name,
-      native_language: nativeLanguage,
-      notifications: NOTIFICATION_TYPE.EMAIL,
-      phone_number: phoneNumber,
-      registration: registration.id,
-      service_language: serviceLanguage,
-      street_address: streetAddress,
-      zipcode,
+      reservation_code: reservationCode,
+      signups: [
+        {
+          city,
+          date_of_birth: '1999-10-10',
+          email,
+          extra_info: extraInfo,
+          membership_number: membershipNumber,
+          name,
+          native_language: nativeLanguage,
+          notifications: NOTIFICATION_TYPE.EMAIL,
+          phone_number: phoneNumber,
+          service_language: serviceLanguage,
+          street_address: streetAddress,
+          zipcode,
+        },
+      ],
+    });
+  });
+});
+
+describe('getAttendeeDefaultInitialValues function', () => {
+  it('should return attendee initial values', () => {
+    expect(
+      getAttendeeDefaultInitialValues(
+        fakeRegistration({
+          audience_max_age: 18,
+          audience_min_age: 8,
+        })
+      )
+    ).toEqual({
+      audienceMaxAge: 18,
+      audienceMinAge: 8,
+      city: '',
+      dateOfBirth: '',
+      extraInfo: '',
+      inWaitingList: false,
+      name: '',
+      streetAddress: '',
+      zip: '',
+    });
+
+    expect(
+      getAttendeeDefaultInitialValues(
+        fakeRegistration({
+          audience_max_age: null,
+          audience_min_age: null,
+        })
+      )
+    ).toEqual({
+      audienceMaxAge: null,
+      audienceMinAge: null,
+      city: '',
+      dateOfBirth: '',
+      extraInfo: '',
+      inWaitingList: false,
+      name: '',
+      streetAddress: '',
+      zip: '',
     });
   });
 });
@@ -125,6 +196,7 @@ describe('getEnrolmentDefaultInitialValues function', () => {
           city: '',
           dateOfBirth: '',
           extraInfo: '',
+          inWaitingList: false,
           name: '',
           streetAddress: '',
           zip: '',
@@ -155,6 +227,7 @@ describe('getEnrolmentDefaultInitialValues function', () => {
           city: '',
           dateOfBirth: '',
           extraInfo: '',
+          inWaitingList: false,
           name: '',
           streetAddress: '',
           zip: '',
@@ -208,6 +281,7 @@ describe('getEnrolmentInitialValues function', () => {
         city: '-',
         dateOfBirth: '',
         extraInfo: '',
+        inWaitingList: false,
         name: '-',
         streetAddress: '-',
         zip: '-',
@@ -270,6 +344,7 @@ describe('getEnrolmentInitialValues function', () => {
         city: expectedCity,
         dateOfBirth: expectedDateOfBirth,
         extraInfo: '',
+        inWaitingList: false,
         name: expectedName,
         streetAddress: expectedStreetAddress,
         zip: expectedZip,
@@ -301,11 +376,5 @@ describe('getEnrolmentNotificationTypes function', () => {
       NOTIFICATIONS.SMS,
     ]);
     expect(getEnrolmentNotificationTypes('lorem ipsum')).toEqual([]);
-  });
-});
-
-describe('getRegistrationTimeLeft function', () => {
-  it('should return 0 if data is not stored to session storage', () => {
-    expect(getRegistrationTimeLeft(registration)).toEqual(0);
   });
 });

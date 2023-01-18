@@ -1,11 +1,19 @@
+/* eslint-disable max-len */
 import { FieldArray, useField } from 'formik';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
+import { reportError } from '../../../app/sentry/utils';
 import { Registration } from '../../../registration/types';
+import { useUpdateReserveSeatsMutation } from '../../../reserveSeats/mutation';
+import {
+  getSeatsReservationData,
+  setSeatsReservationData,
+} from '../../../reserveSeats/utils';
 import { ENROLMENT_FIELDS } from '../../constants';
+import { useEnrolmentServerErrorsContext } from '../../enrolmentServerErrorsContext/hooks/useEnrolmentServerErrorsContext';
 import ConfirmDeleteParticipantModal from '../../modals/confirmDeleteParticipantModal/ConfirmDeleteParticipantModal';
 import { AttendeeFields } from '../../types';
-import { updateEnrolmentReservationData } from '../../utils';
+import { getNewAttendees } from '../../utils';
 import Attendee from './attendee/Attendee';
 import styles from './attendees.module.scss';
 
@@ -23,40 +31,85 @@ const Attendees: React.FC<Props> = ({
   readOnly,
   registration,
 }) => {
+  const indexToRemove = useRef(-1);
   const [openModalIndex, setOpenModalIndex] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const [{ value: attendees }] = useField<AttendeeFields[]>({
-    name: ENROLMENT_FIELDS.ATTENDEES,
+  const { setServerErrorItems, showServerErrors } =
+    useEnrolmentServerErrorsContext();
+
+  const [{ value: attendees }, , { setValue: setAttendees }] = useField<
+    AttendeeFields[]
+  >({ name: ENROLMENT_FIELDS.ATTENDEES });
+
+  const closeModal = () => {
+    setOpenModalIndex(null);
+  };
+
+  const updateReserveSeatsMutation = useUpdateReserveSeatsMutation({
+    onError: (error, variables) => {
+      showServerErrors(
+        { error: JSON.parse(error.message) },
+        'seatsReservation'
+      );
+
+      reportError({
+        data: {
+          error: JSON.parse(error.message),
+          payload: variables,
+          payloadAsString: JSON.stringify(variables),
+        },
+        message: 'Failed to update reserve seats',
+      });
+
+      setSaving(false);
+      closeModal();
+    },
+    onSuccess: (seatsReservation) => {
+      const newAttendees = getNewAttendees({
+        attendees: attendees.filter(
+          (_, index) => index !== indexToRemove.current
+        ),
+        registration,
+        seatsReservation,
+      });
+
+      setAttendees(newAttendees);
+
+      setSeatsReservationData(registration.id, seatsReservation);
+
+      setSaving(false);
+      closeModal();
+    },
   });
 
   return (
     <div className={styles.accordions}>
       <FieldArray
         name={ENROLMENT_FIELDS.ATTENDEES}
-        render={(arrayHelpers) => (
+        render={() => (
           <div>
             {attendees.map((attendee, index: number) => {
-              const closeModal = () => {
-                setOpenModalIndex(null);
-              };
-
               const openModal = () => {
                 setOpenModalIndex(index);
               };
 
-              const deleteParticipant = () => {
+              const deleteParticipant = async () => {
                 setSaving(true);
 
-                // TODO: Update reservation from API when BE is ready
-                updateEnrolmentReservationData(
-                  registration,
-                  attendees.length - 1
-                );
-                arrayHelpers.remove(index);
+                const data = getSeatsReservationData(registration.id);
 
-                setSaving(false);
-                closeModal();
+                // Clear server errors
+                setServerErrorItems([]);
+
+                indexToRemove.current = index;
+
+                await updateReserveSeatsMutation.mutate({
+                  code: data?.code as string,
+                  registration: registration.id,
+                  seats: attendees.length - 1,
+                  waitlist: true,
+                });
               };
 
               return (

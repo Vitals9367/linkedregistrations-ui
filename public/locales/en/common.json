@@ -1,6 +1,16 @@
 {
   "appName": "Linked Registrations",
   "cancel": "Undo",
+  "cookieConsent": {
+    "enrolmentForm": {
+      "description": "The cookie required to save the enrolment form data",
+      "name": "Enrolment form cookie"
+    },
+    "expiration": {
+      "session": "Session"
+    },
+    "siteName": "Linked Registrations"
+  },
   "dropdownSelect": {
     "accessibility": {
       "noResults": "No options",
@@ -16,6 +26,7 @@
   "loading": "Loading...",
   "loadingFinished": "Loading finished",
   "navigation": {
+    "backToEnrolmentForm": "Back to the registration form",
     "languages": {
       "en": "In English",
       "fi": "Suomeksi",
@@ -38,6 +49,7 @@
     "min0": "This number must be at least 0.",
     "mustBeUnique": "The value must be unique.",
     "nameIsRequired": "The name must be specified.",
+    "notEnoughSeats": "Not enough seats available.",
     "notFoundAllObjects": "Could not find all objects to update.",
     "notNull": "The value of this field cannot be \"null\".",
     "offersIsRequired": "Price info must be specified before an event is published.",
@@ -50,6 +62,8 @@
   },
   "showLess": "Show less",
   "showMore": "Show more",
+  "signIn": "Sign in",
+  "signOut": "Sign out",
   "titleServerErrorSummary": "Form contains following errors",
   "validation": {
     "age": {

@@ -24,7 +24,7 @@ const LoadingSpinner: React.FC<React.PropsWithChildren<Props>> = ({
   small,
   ...rest
 }) => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation<string>('common');
   return (
     <>
       {isLoading ? (
@@ -37,8 +37,10 @@ const LoadingSpinner: React.FC<React.PropsWithChildren<Props>> = ({
             className={classNames(styles.loadingSpinner, {
               [styles.loadingSpinnerSmall]: small,
             })}
-            loadingText={loadingText || t('loading')}
-            loadingFinishedText={loadingFinishedText || t('loadingFinished')}
+            loadingText={loadingText || (t('loading') as string)}
+            loadingFinishedText={
+              loadingFinishedText || (t('loadingFinished') as string)
+            }
           />
         </div>
       ) : (

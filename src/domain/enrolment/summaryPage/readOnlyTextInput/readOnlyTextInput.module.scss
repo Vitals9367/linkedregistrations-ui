@@ -1,0 +1,27 @@
+.readOnlyTextInput {
+  margin-bottom: var(--spacing-xs);
+
+  label {
+    color: var(--label-color-default, var(--color-black-90));
+    display: block;
+    font-size: var(--fontsize-body-m);
+    font-weight: 700;
+    margin-bottom: var(--spacing-2-xs);
+  }
+
+  .input {
+    -webkit-appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+    box-sizing: border-box;
+    color: var(--input-color-default);
+    font-size: 1.125em;
+    line-height: normal;
+    padding: 0;
+    width: 100%;
+    will-change: transform, box-shadow;
+    outline: none;
+    -webkit-text-fill-color: var(--input-color-default);
+  }
+}

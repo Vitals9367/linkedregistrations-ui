@@ -1,3 +1,6 @@
+import { Session } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
+
 export type Language = 'en' | 'fi' | 'sv';
 
 export type Error<T> = {
@@ -18,3 +21,16 @@ export type ServerErrorItem = {
   label: string;
   message: string;
 };
+
+export type FalsyType = false | null | undefined | '' | 0;
+
+type SessionExtensions = {
+  accessToken: string | null;
+  accessTokenExpiresAt: number | null;
+  apiToken: string | null;
+  apiTokenExpiresAt: number | null;
+  sub: string | null;
+};
+
+export type ExtendedSession = Session & SessionExtensions;
+export type ExtendedJWT = JWT & Omit<SessionExtensions, 'sub'>;

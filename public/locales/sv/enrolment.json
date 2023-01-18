@@ -2,7 +2,7 @@
   "attendeeDefaultTitle": "Deltagare {{index}}",
   "buttonCancel": "Avbryt registreringen",
   "buttonDeleteAttendee": "Ta bort deltagare",
-  "buttonSend": "Skicka in registrering",
+  "buttonGoToSummary": "Fortsätt till registreringen",
   "buttonUpdateParticipantAmount": "Uppdatera",
   "cancelEnrolmentModal": {
     "buttonCancel": "Avbryt registreringen",
@@ -37,7 +37,12 @@
     },
     "freeEvent": "Fri"
   },
-  "labelAccepted": "Jag godkänner att dela min information med arrangören",
+  "freeCapacity": "Tillgängliga platser",
+  "inWaitingList": {
+    "text": "På väntelista",
+    "tooltip": "Deltagare har lagts till i kön av anmälda med reservplats. Anmälan bekräftas först när en plats i kön blir ledig. Du får ett meddelande via e-post om att platsen är bekräftad."
+  },
+  "labelAccepted": "Jag godkänner att dela min information med arrangören. Vi använder inte informationen du tillhandahåller för marknadsföringsändamål. <a href={{url}} target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Integritetspolicy {{openInNewTab}}\">Integritetspolicy</a>",
   "labelAttendeeExtraInfo": "Ytterligare information (valfritt)",
   "labelCity": "Staden",
   "labelDateOfBirth": "Födelsedatum",
@@ -52,11 +57,14 @@
   "labelStreetAddress": "Gatuadress",
   "labelZip": "Postnummer",
   "linkPrivacyPolicy": "https://www.hel.fi/static/liitteet-2019/Kaupunginkanslia/Rekisteriselosteet/Keha/Kayttajatunnusten%20hallinta.pdf",
-  "notificationLabel": "Vi skickar ett separat bekräftelsemeddelande när evenemangsarrangören har behandlat och bekräftat din registrering. Vi använder inte informationen du tillhandahåller för marknadsföringsändamål. <a href={{url}} target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Integritetspolicy {{openInNewTab}}\">Integritetspolicy</a>",
-  "notificationTitle": "Bekräftelse av registrering",
   "notifications": {
     "email": "Via e-post",
     "sms": "Med sms"
+  },
+  "personsAddedToWaitingListModal": {
+    "buttonClose": "Stänga",
+    "text": "Observera att inte alla anmäldas platser är garanterade. Deltagare på reservplatsen bekräftas endast om fler platser blir lediga i kön. Du kommer att få ett separat e-postmeddelande från bekräftad registrering.",
+    "title": "Deltagare har lagts till i bokningskön"
   },
   "placeholderAttendeeExtraInfo": "Ange ytterligare information eller begäran",
   "placeholderCity": "Ange staden",
@@ -74,6 +82,7 @@
   "titleAdditionalInfo": "Ytterligare information",
   "titleBasicInfo": "Grundläggande information om registranten",
   "titleContactInfo": "Kontaktinformation",
+  "titleInformantInfo": "Information om uppgiftslämnaren",
   "titleNotifications": "Evenemangmeddelanden",
   "titleRegistration": "Registrering",
   "warnings": {

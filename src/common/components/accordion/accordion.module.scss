@@ -23,11 +23,25 @@
     font-weight: normal;
     font-size: var(--fontsize-body-m);
     border: none;
+    box-sizing: border-box;
 
     @include focus-outline(-3px);
 
+    span {
+      display: flex;
+    }
+
     span:not(:last-child) {
       margin-right: var(--spacing-xs);
+    }
+
+    .iconWrapper {
+      display: flex;
+      align-items: center;
+
+      .separator {
+        margin: 0 var(--spacing-3-xs);
+      }
     }
   }
 

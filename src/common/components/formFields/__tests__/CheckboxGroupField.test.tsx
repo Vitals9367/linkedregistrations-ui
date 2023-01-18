@@ -36,7 +36,7 @@ test('should toggle visible options', async () => {
   const restOptions = options.slice(visibleOptionAmount);
 
   defaultOptions.forEach(({ label }) => {
-    expect(screen.queryByLabelText(label)).toBeInTheDocument();
+    screen.getByLabelText(label);
   });
 
   restOptions.forEach(({ label }) => {
@@ -46,6 +46,22 @@ test('should toggle visible options', async () => {
   await user.click(screen.getByRole('button', { name: /näytä lisää/i }));
 
   restOptions.forEach(({ label }) => {
-    expect(screen.queryByLabelText(label)).toBeInTheDocument();
+    screen.getByLabelText(label);
   });
+});
+
+test('should show label with required indicator', async () => {
+  const label = 'Label';
+  renderComponent({ label, required: true });
+
+  screen.getByRole('group', { name: label });
+  screen.getByText('*');
+});
+
+test('should show label without required indicator', async () => {
+  const label = 'Label';
+  renderComponent({ label, required: false });
+
+  screen.getByRole('group', { name: label });
+  expect(screen.queryByText('*')).not.toBeInTheDocument();
 });

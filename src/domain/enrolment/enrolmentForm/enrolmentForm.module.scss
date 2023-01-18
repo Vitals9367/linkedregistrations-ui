@@ -13,24 +13,10 @@
   }
 }
 
+.sectionTitle {
+  margin-bottom: calc(0px - var(--spacing-xs));
+}
+
 .notifications {
   margin-top: var(--spacing-m);
-}
-
-.notification {
-  margin: var(--spacing-l) 0;
-}
-
-.buttonWrapper {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.button {
-  @include min-width-column(2);
-}
-
-.divider {
-  border-top: 1px solid var(--color-black-20);
-  margin: var(--spacing-m) 0;
 }

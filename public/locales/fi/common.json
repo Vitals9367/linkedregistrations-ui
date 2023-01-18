@@ -1,6 +1,16 @@
 {
   "appName": "Linked Registrations",
   "cancel": "Peruuta",
+  "cookieConsent": {
+    "enrolmentForm": {
+      "description": "Osallistumislomakkeen tietojen säilymiseksi vaadittu eväste",
+      "name": "Osallistumislomakkeen eväste"
+    },
+    "expiration": {
+      "session": "Istunto"
+    },
+    "siteName": "Linked Registrations"
+  },
   "dropdownSelect": {
     "accessibility": {
       "noResults": "Ei vaihtoehtoja",
@@ -16,6 +26,7 @@
   "loading": "Ladataan...",
   "loadingFinished": "Lataaminen päättynyt",
   "navigation": {
+    "backToEnrolmentForm": "Palaa ilmoittautumiskaavakkeeseen",
     "languages": {
       "en": "In English",
       "fi": "Suomeksi",
@@ -38,6 +49,7 @@
     "min0": "Tämän luvun on oltava vähintään 0.",
     "mustBeUnique": "Arvon tulee olla uniikki.",
     "nameIsRequired": "Nimi on pakollinen.",
+    "notEnoughSeats": "Paikkoja ei ole riittävästi jäljellä.",
     "notFoundAllObjects": "Kaikkia päivitettäviä objekteja ei löytynyt.",
     "notNull": "Tämän kentän arvo ei voi olla \"null\".",
     "offersIsRequired": "Hintatiedot on määritettävä ennen tapahtuman julkaisemista.",
@@ -50,6 +62,8 @@
   },
   "showLess": "Näytä vähemmän",
   "showMore": "Näytä lisää",
+  "signIn": "Kirjaudu sisään",
+  "signOut": "Kirjaudu ulos",
   "titleServerErrorSummary": "Lomakkeella on seuraavat virheet",
   "validation": {
     "age": {

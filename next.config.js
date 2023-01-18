@@ -8,8 +8,12 @@ const { i18n } = require('./next-i18next.config');
 const moduleExports = {
   i18n,
   reactStrictMode: true,
+  swcMinify: true,
   sassOptions: {
     includePaths: ['src/styles'],
+  },
+  sentry: {
+    hideSourceMaps: true,
   },
 };
 

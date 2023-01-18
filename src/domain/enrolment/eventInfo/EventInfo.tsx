@@ -2,19 +2,18 @@ import { IconClock, IconLocation, IconTicket, IconUser, Tag } from 'hds-react';
 import capitalize from 'lodash/capitalize';
 import React from 'react';
 
+import TextWithIcon from '../../../common/components/textWithIcon/TextWithIcon';
 import useLocale from '../../../hooks/useLocale';
 import getLocalisedString from '../../../utils/getLocalisedString';
-import useEventLocation from '../../event/hooks/useEventLocation';
+import useEventLocationText from '../../event/hooks/useEventLocationText';
 import { Event } from '../../event/types';
 import { getEventFields } from '../../event/utils';
-import { getPlaceFields } from '../../place/utils';
 import { Registration } from '../../registration/types';
 import { getRegistrationFields } from '../../registration/utils';
 import AudienceAgeText from './AudienceAgeText';
 import DateText from './DateText';
 import styles from './eventInfo.module.scss';
 import PriceText from './PriceText';
-import TextWithIcon from './TextWithIcon';
 
 type EventInfoProps = {
   event: Event;
@@ -36,18 +35,7 @@ const EventInfo: React.FC<EventInfoProps> = ({ event, registration }) => {
   const { audienceMaxAge, audienceMinAge } =
     getRegistrationFields(registration);
 
-  const { location } = useEventLocation(event);
-  const {
-    addressLocality,
-    name: locationName,
-    streetAddress,
-  } = location
-    ? getPlaceFields(location, locale)
-    : { addressLocality: '', name: '', streetAddress: '' };
-  const locationText =
-    [locationName, streetAddress, addressLocality]
-      .filter((e) => e)
-      .join(', ') || '-';
+  const locationText = useEventLocationText(event);
 
   return (
     <div className={styles.eventInfo}>

@@ -8,7 +8,6 @@ import {
 import { Enrolment, EnrolmentQueryVariables } from './types';
 import { fetchEnrolment } from './utils';
 
-/* istanbul ignore next */
 export const fetchEnrolmentQuery = (
   queryClient: QueryClient,
   args: EnrolmentQueryVariables
@@ -18,7 +17,6 @@ export const fetchEnrolmentQuery = (
   );
 };
 
-/* istanbul ignore next */
 export const prefetchEnrolmentQuery = (
   queryClient: QueryClient,
   args: EnrolmentQueryVariables

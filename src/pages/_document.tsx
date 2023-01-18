@@ -1,28 +1,38 @@
-import jsdom from 'jsdom';
+import * as hds from 'hds-react';
+import { getCriticalHdsRules } from 'hds-react';
 import Document, {
-  DocumentProps,
   Html,
   Head,
   Main,
   NextScript,
+  DocumentContext,
+  DocumentProps,
 } from 'next/document';
-import React from 'react';
 
-const document = new jsdom.JSDOM('<!DOCTYPE html>').window.document;
-global.document = document;
+type Props = {
+  hdsCriticalRules: string;
+} & DocumentProps;
 
-class MyDocument extends Document<DocumentProps> {
-  render(): React.ReactElement {
+class MyDocument extends Document<Props> {
+  static async getInitialProps(ctx: DocumentContext) {
+    const initialProps = await Document.getInitialProps(ctx);
+    const hdsCriticalRules = await getCriticalHdsRules(
+      initialProps.html,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (hds as any).hdsStyles
+    );
+
+    return { ...initialProps, hdsCriticalRules };
+  }
+
+  render() {
     return (
       <Html>
         <Head>
-          {Array.from(document.head.getElementsByTagName('style')).map(
-            (style, index) => (
-              <style key={index} type={style.type}>
-                {style.innerHTML}
-              </style>
-            )
-          )}
+          <style
+            data-used-styles
+            dangerouslySetInnerHTML={{ __html: this.props.hdsCriticalRules }}
+          />
         </Head>
         <body>
           <Main />
@@ -32,5 +42,4 @@ class MyDocument extends Document<DocumentProps> {
     );
   }
 }
-
 export default MyDocument;

@@ -1,0 +1,16 @@
+@import '../../../styles/breakpoints.scss';
+
+.summaryPage {
+  h2 {
+    margin-bottom: calc(0px - var(--spacing-xs));
+  }
+}
+
+.notification {
+  margin-bottom: var(--spacing-m);
+
+  @include medium-up {
+    margin-top: var(--spacing-m);
+    margin-bottom: var(--spacing-xl);
+  }
+}

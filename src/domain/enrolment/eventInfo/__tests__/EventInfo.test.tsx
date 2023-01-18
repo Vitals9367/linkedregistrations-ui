@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/**
- * @jest-environment jsdom
- */
 import { rest } from 'msw';
 import React from 'react';
 
@@ -75,12 +71,16 @@ test('should show event time correctly if only start time is defined', async () 
     />
   );
 
-  await findElement('location');
-  getElement('name');
-  keywordsOverrides.forEach((item) =>
-    screen.getByText(item.name?.fi as string)
+  screen.getByText('10.7.2020, 15.00 –');
+});
+
+test('should show event time correctly if only end time is defined', async () => {
+  render(
+    <EventInfo
+      event={{ ...event, start_time: null }}
+      registration={registration}
+    />
   );
-  getElement('description');
-  getElement('price');
-  screen.getByText('10.7.2020 –');
+
+  screen.getByText('– 13.7.2020, 15.00');
 });

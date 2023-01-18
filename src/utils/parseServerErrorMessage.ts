@@ -40,6 +40,8 @@ const parseServerErrorMessage = ({
       return t(`common:serverError.emailMustBeUnique`);
     case 'Kenttien phone_number, registration tulee muodostaa uniikki joukko.':
       return t(`common:serverError.phoneNumberMustBeUnique`);
+    case 'Not enough seats available.':
+      return t(`common:serverError.notEnoughSeats`);
     case 'Price info must be specified before an event is published.':
       return t(`common:serverError.offersIsRequired`);
     case 'Short description length must be 160 characters or less':

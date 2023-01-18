@@ -4,13 +4,25 @@ import {
   UseMutationResult,
 } from '@tanstack/react-query';
 
-import { CreateEnrolmentMutationInput, Enrolment } from './types';
+import { CreateEnrolmentMutationInput, CreateEnrolmentResponse } from './types';
 import { createEnrolment, deleteEnrolment } from './utils';
 
 export const useCreateEnrolmentMutation = (
-  options?: UseMutationOptions<Enrolment, Error, CreateEnrolmentMutationInput>
-): UseMutationResult<Enrolment, Error, CreateEnrolmentMutationInput> => {
-  return useMutation((input) => createEnrolment(input), options);
+  registrationId: string,
+  options?: UseMutationOptions<
+    CreateEnrolmentResponse,
+    Error,
+    CreateEnrolmentMutationInput
+  >
+): UseMutationResult<
+  CreateEnrolmentResponse,
+  Error,
+  CreateEnrolmentMutationInput
+> => {
+  return useMutation(
+    (input) => createEnrolment(registrationId, input),
+    options
+  );
 };
 
 export const useDeleteEnrolmentMutation = (

@@ -1,0 +1,7 @@
+{
+  "reservationTimeExpiredModal": {
+    "buttonTryAgain": "Yritä uudelleen",
+    "text": "Valitettavasti varausaika on umpeutunut.",
+    "title": "Varausaika on täynnä."
+  }
+}

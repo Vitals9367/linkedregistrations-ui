@@ -1,0 +1,34 @@
+@import '../../../../styles//breakpoints.scss';
+
+.summaryEventInfo {
+  h1 {
+    margin: 0;
+    font-weight: 500;
+    line-height: var(--lineheight-s);
+  }
+
+  .nameRow {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .dateRow {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: var(--spacing-s);
+    margin-bottom: var(--spacing-s);
+
+    @include medium-up {
+      grid-gap: var(--spacing-m);
+    }
+  }
+
+  .ticketRow {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: var(--spacing-s);
+
+    @include medium-up {
+      grid-gap: var(--spacing-m);
+    }
+  }
+}

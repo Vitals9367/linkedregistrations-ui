@@ -1,6 +1,16 @@
 {
   "appName": "Linked Registrations",
   "cancel": "Ångra",
+  "cookieConsent": {
+    "enrolmentForm": {
+      "description": "Cookien som krävs för att spara deltagande formulär data",
+      "name": "Cookie för deltagande formulär"
+    },
+    "expiration": {
+      "session": "Session"
+    },
+    "siteName": "Linked Registrations"
+  },
   "dropdownSelect": {
     "accessibility": {
       "noResults": "Inga alternativ",
@@ -16,6 +26,7 @@
   "loading": "Laddar...",
   "loadingFinished": "Laddningen är klar",
   "navigation": {
+    "backToEnrolmentForm": "Återgå till registreringsformuläret",
     "languages": {
       "en": "In English",
       "fi": "Suomeksi",
@@ -38,6 +49,7 @@
     "mustBeUnique": "Värdet måste vara unikt.",
     "min0": "Detta nummer måste vara minst 0.",
     "nameIsRequired": "Namnet krävs.",
+    "notEnoughSeats": "Inte tillräckligt med platser tillgängliga.",
     "notFoundAllObjects": "Det gick inte att hitta alla objekt att uppdatera.",
     "notNull": "Värdet på detta fält kan inte vara \"null\".",
     "offersIsRequired": "Prisinformation måste anges innan ett evenemang publiceras.",
@@ -50,6 +62,8 @@
   },
   "showLess": "Visa mindre",
   "showMore": "Visa mer",
+  "signIn": "Logga in",
+  "signOut": "Logga ut",
   "titleServerErrorSummary": "Formuläret innehåller följande fel",
   "validation": {
     "age": {
