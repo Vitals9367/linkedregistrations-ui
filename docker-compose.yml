@@ -8,3 +8,5 @@ services:
       target: ${DOCKER_TARGET:-development}
     ports:
       - '${PORT}:${PORT}'
+    volumes:
+      - './src:/app/src'

@@ -1,6 +1,7 @@
-# =======================================
-FROM registry.access.redhat.com/ubi8/nodejs-16 as appbase
-# =======================================
+# ============================================================
+FROM registry.access.redhat.com/ubi8/nodejs-16 as dependencies
+# ============================================================
+WORKDIR /app
 
 # Install yarn and set yarn version
 USER root
@@ -10,36 +11,40 @@ RUN yum -y install yarn
 ENV YARN_VERSION 1.22.4
 RUN yarn policies set-version $YARN_VERSION
 
-COPY package.json yarn.lock /opt/app-root/src/
-RUN chown -R default:root /opt/app-root/src
-
-USER default
-
 # Install dependencies
-RUN yarn && yarn cache clean --force
+COPY package.json yarn.lock /app/
+RUN chown -R default:root /app
 
-# Copy all files
-COPY . /opt/app-root/src/
-
-# =============================
-FROM appbase as development
-# =============================
-
-# Use non-root user
 USER default
+
+RUN yarn --frozen-lockfile
+
+# =============================
+FROM dependencies as development
+# =============================
+WORKDIR /app
+
+USER default
+COPY . .
 
 # Bake package.json start command into the image
 CMD ["yarn", "dev"]
 
-# ===================================
-FROM appbase as staticbuilder
-# ===================================
+# ============================================================
+FROM dependencies as builder
+# ============================================================
+WORKDIR /app
 
-# Use non-root user
 USER default
+COPY . .
 
-# Set environmental variables (when building image on GitHub) 
-# specified in github workflow files  
+# Next.js collects completely anonymous telemetry data about general usage.
+# Learn more here: https://nextjs.org/telemetry
+# Uncomment the following line in case you want to disable telemetry during the build.
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Set environmental variables (when building image on Azure) 
+# specified in pipelines/library files
 ARG NEXT_PUBLIC_LINKED_EVENTS_URL
 ARG NEXT_PUBLIC_SENTRY_DSN
 ARG NEXT_PUBLIC_ENVIRONMENT
@@ -49,47 +54,29 @@ ARG NEXT_PUBLIC_OIDC_CLIENT_ID
 ARG NEXT_PUBLIC_OIDC_API_SCOPE
 ARG NEXTAUTH_URL
 
-# Build application
 RUN yarn build
 
-# ==========================================
+# ============================================================
 FROM registry.access.redhat.com/ubi8/nodejs-16 AS production
-# ==========================================
+# ============================================================
+WORKDIR /app
 
-# Install yarn and set yarn version
 USER root
-RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
-RUN yum -y install yarn
+RUN groupadd --system --gid 1001 nodejs
 
-ENV YARN_VERSION 1.22.4
-RUN yarn policies set-version $YARN_VERSION
-
-# Use non-root user
 USER default
 
-# Copy build folder from staticbuilder stage
-COPY --from=staticbuilder /opt/app-root/src/.next /opt/app-root/src/.next
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Copy next.js config
-COPY next-i18next.config.js /opt/app-root/src/
-COPY next.config.js /opt/app-root/src/
+COPY --from=builder /app/public ./public
 
-# Copy public folder
-COPY public /opt/app-root/src/public
-# Copy package.json and yarn.lock files
-COPY package.json yarn.lock /opt/app-root/src/
-
-# Install production dependencies
-RUN yarn install --production --frozen-lockfile && yarn cache clean --force
-
-ARG NEXTAUTH_SECRET
-ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
-ARG NEXTAUTH_URL
-ENV NEXTAUTH_URL=$NEXTAUTH_URL
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=default:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=default:nodejs /app/.next/static ./.next/static
 
 # Expose port
 EXPOSE $PORT
 
-ENV NEXT_TELEMETRY_DISABLED 1
-# Start ssr server
-CMD ["yarn", "start"]
+CMD ["node", "server.js"]
