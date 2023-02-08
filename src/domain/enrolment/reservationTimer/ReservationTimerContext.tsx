@@ -4,6 +4,7 @@ import React, {
   FC,
   PropsWithChildren,
   useCallback,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -181,14 +182,17 @@ export const ReservationTimerProvider: FC<PropsWithChildren<Props>> = ({
     return () => clearInterval(interval);
   }, [disableCallbacks, registration, setOpenModal, setTimeLeft, timeLeft]);
 
+  const value = useMemo(
+    () => ({
+      disableCallbacks,
+      registration,
+      timeLeft,
+    }),
+    [disableCallbacks, registration, timeLeft]
+  );
+
   return (
-    <ReservationTimerContext.Provider
-      value={{
-        disableCallbacks,
-        registration,
-        timeLeft,
-      }}
-    >
+    <ReservationTimerContext.Provider value={value}>
       <ReservationTimeExpiredModal
         isOpen={openModal === ENROLMENT_MODALS.RESERVATION_TIME_EXPIRED}
         onTryAgain={handleTryAgain}

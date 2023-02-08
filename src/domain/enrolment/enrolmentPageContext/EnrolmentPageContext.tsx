@@ -1,4 +1,11 @@
-import React, { createContext, FC, PropsWithChildren, useState } from 'react';
+import React, {
+  createContext,
+  FC,
+  PropsWithChildren,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 
 import useMountedState from '../../../hooks/useMountedState';
 import { ENROLMENT_MODALS } from '../constants';
@@ -23,20 +30,26 @@ export const EnrolmentPageProvider: FC<PropsWithChildren> = ({ children }) => {
     null
   );
 
-  const toggleOpenParticipant = (newIndex: number) => {
-    setOpenParticipant(openParticipant === newIndex ? null : newIndex);
-  };
+  const toggleOpenParticipant = useCallback(
+    (newIndex: number) => {
+      setOpenParticipant(openParticipant === newIndex ? null : newIndex);
+    },
+    [openParticipant]
+  );
+
+  const value = useMemo(
+    () => ({
+      openModal,
+      openParticipant,
+      setOpenModal,
+      setOpenParticipant,
+      toggleOpenParticipant,
+    }),
+    [openModal, openParticipant, setOpenModal, toggleOpenParticipant]
+  );
 
   return (
-    <EnrolmentPageContext.Provider
-      value={{
-        openModal,
-        openParticipant,
-        setOpenModal,
-        setOpenParticipant,
-        toggleOpenParticipant,
-      }}
-    >
+    <EnrolmentPageContext.Provider value={value}>
       <PersonsAddedToWaitingListModal
         isOpen={openModal === ENROLMENT_MODALS.PERSONS_ADDED_TO_WAITLIST}
         onClose={() => setOpenModal(null)}
