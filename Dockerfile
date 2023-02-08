@@ -1,5 +1,5 @@
 # ============================================================
-FROM registry.access.redhat.com/ubi8/nodejs-16 as dependencies
+FROM registry.access.redhat.com/ubi8/nodejs-16 AS dependencies
 # ============================================================
 WORKDIR /app
 
@@ -20,7 +20,7 @@ USER default
 RUN yarn --frozen-lockfile
 
 # =============================
-FROM dependencies as development
+FROM dependencies AS development
 # =============================
 WORKDIR /app
 
@@ -31,7 +31,7 @@ COPY . .
 CMD ["yarn", "dev"]
 
 # ============================================================
-FROM dependencies as builder
+FROM dependencies AS builder
 # ============================================================
 WORKDIR /app
 
