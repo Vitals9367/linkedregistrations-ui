@@ -9,6 +9,7 @@ const createJestConfig = nextJest({ dir: './' });
 // Any custom config you want to pass to Jest
 const customJestConfig = {
   coverageProvider: 'babel',
+  coverageReporters: ['clover', 'json', 'lcov', 'text', 'cobertura'],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!**/*.d.ts',

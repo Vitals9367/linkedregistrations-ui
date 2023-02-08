@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "TZ=UTC jest --watch",
-    "test:azure": "TZ=UTC jest --testResultsProcessor=\"./node_modules/jest-junit\" --coverage --coverageReporters=cobertura --watchAll=false",
-    "test:coverage": "TZ=UTC jest --watchAll=false --coverage"
+    "test:coverage": "TZ=UTC jest --testResultsProcessor=\"./node_modules/jest-junit\" --coverage --watchAll=false"
   },
   "dependencies": {
     "@sentry/nextjs": "^7.21.1",
