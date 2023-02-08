@@ -122,7 +122,6 @@ const Attendees: React.FC<Props> = ({
                     participantCount={1}
                   />
                   <Attendee
-                    key={index}
                     attendee={attendee}
                     attendeePath={getAttendeePath(index)}
                     formDisabled={formDisabled}

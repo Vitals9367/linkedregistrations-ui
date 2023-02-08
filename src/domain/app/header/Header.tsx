@@ -88,10 +88,10 @@ const Header: React.FC = () => {
       logoLanguage={locale === 'sv' ? /* istanbul ignore next */ 'sv' : 'fi'}
     >
       <Navigation.Row>
-        {navigationItems.map((item, index) => (
+        {navigationItems.map((item) => (
           <Navigation.Item
             variant="primary"
-            key={index}
+            key={item.url}
             icon={item.icon}
             href={item.url}
             label={item.label}
