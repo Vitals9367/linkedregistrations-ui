@@ -67,6 +67,9 @@
     "typescript": "4.9.3",
     "waait": "^1.0.5"
   },
+  "resolutions": {
+    "npmlog": "^7.0.0"
+  },
   "jest-junit": {
     "outputDirectory": ".",
     "outputName": "jest-report.xml",
