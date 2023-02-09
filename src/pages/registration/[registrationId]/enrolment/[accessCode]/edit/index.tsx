@@ -4,10 +4,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 import EditEnrolmentPage from '../../../../../../domain/enrolment/EditEnrolmentPage';
 import { prefetchEnrolmentQuery } from '../../../../../../domain/enrolment/query';
-import { EVENT_INCLUDES } from '../../../../../../domain/event/constants';
-import { prefetchEventQuery } from '../../../../../../domain/event/query';
-import { fetchRegistrationQuery } from '../../../../../../domain/registration/query';
 import { getSessionAndUser } from '../../../../../../utils/getSessionAndUser';
+import prefetchRegistrationAndEvent from '../../../../../../utils/prefetchRegistrationAndEvent';
 
 const EditEnrolment: NextPage = () => <EditEnrolmentPage />;
 
@@ -23,22 +21,22 @@ export const getServerSideProps: GetServerSideProps = async ({
     res,
   });
 
+  await prefetchRegistrationAndEvent({
+    query,
+    queryClient,
+    req,
+    res,
+    shouldPrefetchPlace: false,
+  });
+
   try {
-    const registration = await fetchRegistrationQuery(queryClient, {
-      id: query.registrationId as string,
-    });
-
-    if (registration?.event) {
-      await prefetchEventQuery(queryClient, {
-        id: registration?.event,
-        include: EVENT_INCLUDES,
-      });
-    }
-
     await prefetchEnrolmentQuery(queryClient, {
       cancellationCode: query.accessCode as string,
     });
-  } catch {}
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+  }
 
   return {
     props: {

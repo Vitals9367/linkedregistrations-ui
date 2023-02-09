@@ -24,6 +24,7 @@ const customJestConfig = {
     '<rootDir>/src/utils/getSessionAndUser.ts',
     '<rootDir>/src/utils/mockDataUtils.ts',
     '<rootDir>/src/utils/mockSession.ts',
+    '<rootDir>/src/utils/prefetchRegistrationAndEvent.ts',
     '<rootDir>/src/utils/testUtils.ts',
     'constants.ts',
     'query.ts',

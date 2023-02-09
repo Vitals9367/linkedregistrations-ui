@@ -3,10 +3,8 @@ import { GetServerSideProps, NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 import EnrolmentCancelledPage from '../../../../../domain/enrolment/EnrolmentCancelledPage';
-import { EVENT_INCLUDES } from '../../../../../domain/event/constants';
-import { prefetchEventQuery } from '../../../../../domain/event/query';
-import { fetchRegistrationQuery } from '../../../../../domain/registration/query';
 import { getSessionAndUser } from '../../../../../utils/getSessionAndUser';
+import prefetchRegistrationAndEvent from '../../../../../utils/prefetchRegistrationAndEvent';
 
 const EnrolmentCancelled: NextPage = () => <EnrolmentCancelledPage />;
 
@@ -22,18 +20,13 @@ export const getServerSideProps: GetServerSideProps = async ({
     res,
   });
 
-  try {
-    const registration = await fetchRegistrationQuery(queryClient, {
-      id: query.registrationId as string,
-    });
-
-    if (registration?.event) {
-      await prefetchEventQuery(queryClient, {
-        id: registration?.event,
-        include: EVENT_INCLUDES,
-      });
-    }
-  } catch {}
+  await prefetchRegistrationAndEvent({
+    query,
+    queryClient,
+    req,
+    res,
+    shouldPrefetchPlace: false,
+  });
 
   return {
     props: {
