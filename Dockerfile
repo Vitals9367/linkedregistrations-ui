@@ -19,13 +19,16 @@ USER default
 
 RUN yarn --frozen-lockfile
 
+COPY .env next-i18next.config.js next.config.js sentry.client.config.js sentry.properties sentry.server.config.js tsconfig.json /app/
+COPY /public/ /app/public
+COPY /src/ /app/src
+
 # =============================
 FROM dependencies AS development
 # =============================
 WORKDIR /app
 
 USER default
-COPY . .
 
 # Bake package.json start command into the image
 CMD ["yarn", "dev"]
@@ -36,7 +39,6 @@ FROM dependencies AS builder
 WORKDIR /app
 
 USER default
-COPY . .
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
