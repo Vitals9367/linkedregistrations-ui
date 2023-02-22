@@ -22,17 +22,18 @@ jest.mock('next-auth/react', () => {
 // Reference: https://github.com/nextauthjs/next-auth/discussions/4185#discussioncomment-2397318
 // We also need to mock the whole next-auth package, since it's used in
 // our various pages via the `export { getServerSideProps }` function.
-jest.mock('next-auth', () => ({
+jest.mock('next-auth/next', () => ({
   __esModule: true,
   default: jest.fn(),
-  unstable_getServerSession: jest.fn(
+  getServerSession: jest.fn(
     () =>
       new Promise((resolve) => {
         resolve({
-          accessToken: null,
+          accessToken: undefined,
           accessTokenExpiresAt: null,
           apiToken: null,
           apiTokenExpiresAt: null,
+          expires: '',
           sub: null,
         } as ExtendedSession);
       })

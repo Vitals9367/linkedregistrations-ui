@@ -4,38 +4,51 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from '@tanstack/react-query';
-import { NextPageContext } from 'next';
 
+import { ExtendedSession } from '../../types';
 import { Event, EventQueryVariables } from './types';
 import { fetchEvent } from './utils';
 
-export const fetchEventQuery = (
-  queryClient: QueryClient,
-  args: EventQueryVariables,
-  ctx?: Pick<NextPageContext, 'req' | 'res'>
-): Promise<Event> => {
+export const fetchEventQuery = ({
+  args,
+  queryClient,
+  session,
+}: {
+  args: EventQueryVariables;
+  queryClient: QueryClient;
+  session: ExtendedSession | null;
+}): Promise<Event> => {
   return queryClient.fetchQuery(['event', args.id], () =>
-    fetchEvent(args, ctx)
+    fetchEvent(args, session)
   );
 };
 
-export const prefetchEventQuery = (
-  queryClient: QueryClient,
-  args: EventQueryVariables,
-  ctx?: Pick<NextPageContext, 'req' | 'res'>
-): Promise<void> => {
+export const prefetchEventQuery = ({
+  args,
+  queryClient,
+  session,
+}: {
+  args: EventQueryVariables;
+  queryClient: QueryClient;
+  session: ExtendedSession | null;
+}): Promise<void> => {
   return queryClient.prefetchQuery(['event', args.id], () =>
-    fetchEvent(args, ctx)
+    fetchEvent(args, session)
   );
 };
 
-export const useEventQuery = (
-  args: EventQueryVariables,
-  options?: Pick<UseQueryOptions, 'enabled'>
-): UseQueryResult<Event> => {
+export const useEventQuery = ({
+  args,
+  options,
+  session,
+}: {
+  args: EventQueryVariables;
+  options?: Pick<UseQueryOptions, 'enabled'>;
+  session: ExtendedSession | null;
+}): UseQueryResult<Event> => {
   return useQuery<Event, Error>(
     ['event', args.id],
-    () => fetchEvent(args),
+    () => fetchEvent(args, session),
     options
   );
 };

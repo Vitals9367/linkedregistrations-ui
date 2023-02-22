@@ -1,7 +1,6 @@
 import { AxiosError } from 'axios';
-import { NextPageContext } from 'next';
 
-import { Language } from '../../types';
+import { ExtendedSession, Language } from '../../types';
 import getLocalisedString from '../../utils/getLocalisedString';
 import queryBuilder from '../../utils/queryBuilder';
 import { callGet } from '../app/axios/axiosClient';
@@ -9,10 +8,10 @@ import { Event, EventFields, EventQueryVariables } from './types';
 
 export const fetchEvent = async (
   args: EventQueryVariables,
-  ctx?: Pick<NextPageContext, 'req' | 'res'>
+  session: ExtendedSession | null
 ): Promise<Event> => {
   try {
-    const { data } = await callGet(eventPathBuilder(args), undefined, ctx);
+    const { data } = await callGet({ session, url: eventPathBuilder(args) });
     return data;
   } catch (error) {
     /* istanbul ignore next */

@@ -9,6 +9,7 @@ import {
   getMockedSeatsReservationData,
   setEnrolmentFormSessionStorageValues,
 } from '../../../../utils/mockDataUtils';
+import { fakeAuthenticatedSession } from '../../../../utils/mockSession';
 import {
   render,
   screen,
@@ -48,7 +49,8 @@ const renderComponent = (
           registration={registration}
         />
       </EnrolmentServerErrorsContext.Provider>
-    </EnrolmentPageProvider>
+    </EnrolmentPageProvider>,
+    { session: fakeAuthenticatedSession() }
   );
 
 beforeEach(() => {

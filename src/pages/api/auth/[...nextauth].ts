@@ -1,122 +1,176 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import absoluteUrl from 'next-absolute-url';
-import NextAuth, { NextAuthOptions } from 'next-auth';
+import NextAuth, { Awaitable, NextAuthOptions, User } from 'next-auth';
 import { OAuthConfig } from 'next-auth/providers/oauth';
+import getConfig from 'next/config';
 
 import {
-  fetchApiToken,
-  getApiTokenExpirationTime,
-  isApiTokenExpiring,
+  getApiTokensRequest,
+  refreshAccessTokenRequest,
 } from '../../../domain/auth/utils';
-import { ExtendedJWT, ExtendedSession } from '../../../types';
+import {
+  APITokens,
+  ExtendedJWT,
+  ExtendedSession,
+  OidcUser,
+  TunnistamoAccount,
+  TunnistamoProfile,
+} from '../../../types';
 
-type User = {
-  iss: string;
-  sub: string;
-  aud: string;
-  exp: number;
-  iat: number;
-  auth_time: number;
-  nonce: string;
-  at_hash: string;
-  name: string;
-  given_name: string;
-  family_name: string;
-  nickname: string;
-  email: string;
-  email_verified: boolean;
-  azp: string;
-  sid: string;
-  amr: string;
-  loa: string;
+type JwtParams = {
+  token: ExtendedJWT;
+  user?: OidcUser;
+  account: TunnistamoAccount;
 };
 
-export const getNextAuthOptions = (req: NextApiRequest) => {
-  const { origin } = absoluteUrl(req);
+type SessionParams = {
+  token: ExtendedJWT;
+  user: OidcUser;
+  session: ExtendedSession;
+};
+
+const {
+  serverRuntimeConfig: {
+    env,
+    oidcApiTokensUrl,
+    oidcClientId,
+    oidcClientSecret,
+    oidcIssuer,
+    oidcLinkedEventsApiScope,
+    oidcTokenUrl,
+  },
+} = getConfig();
+
+const getApiAccessTokens = async (
+  accessToken: string | undefined
+): Promise<APITokens> => {
+  if (!accessToken) {
+    throw new Error('Access token not available. Cannot update');
+  }
+
+  if (!oidcLinkedEventsApiScope) {
+    throw new Error(
+      'Application configuration error, missing Linked Events Api scope.'
+    );
+  }
+
+  const apiTokens = await getApiTokensRequest({
+    accessToken,
+    linkedEventsApiScope: oidcLinkedEventsApiScope,
+    url: oidcApiTokensUrl,
+  });
+
+  if (!apiTokens) {
+    throw new Error('No api-tokens present');
+  }
+
+  return apiTokens;
+};
+
+const refreshAccessToken = async (token: ExtendedJWT): Promise<ExtendedJWT> => {
+  if (!token.refreshToken) {
+    throw new Error('No refresh token present');
+  }
+
+  try {
+    const response = await refreshAccessTokenRequest({
+      clientId: oidcClientId,
+      clientSecret: oidcClientSecret,
+      url: oidcTokenUrl,
+      refreshToken: token.refreshToken,
+    });
+
+    if (!response) {
+      throw new Error('Unable to refresh tokens');
+    }
+
+    const apiTokens = await getApiAccessTokens(response.access_token);
+
+    return {
+      ...token,
+      accessToken: response.access_token,
+      accessTokenExpires: Date.now() + response.expires_in * 1000,
+      refreshToken: response.refresh_token ?? token.refreshToken,
+      apiTokens,
+    };
+  } catch (error) {
+    // eslint-disable-next-line
+    console.error(error);
+
+    return {
+      ...token,
+      error: 'RefreshAccessTokenError',
+    };
+  }
+};
+
+export const getNextAuthOptions = () => {
+  const wellKnown = `${oidcIssuer}/.well-known/openid-configuration`;
+
   const authOptions: NextAuthOptions = {
-    secret: process.env.NEXTAUTH_SECRET,
-    // Configure one or more authentication providers
     providers: [
       {
         id: 'tunnistamo',
         name: 'Tunnistamo',
         type: 'oauth',
-        wellKnown: `${process.env.NEXT_PUBLIC_OIDC_AUTHORITY}/.well-known/openid-configuration`,
+        wellKnown,
         authorization: {
           params: {
-            redirect_uri: `${origin}/callback`,
-            scope: `openid profile email ${process.env.NEXT_PUBLIC_OIDC_API_SCOPE}`,
+            response_type: 'code',
+            scope: `openid profile email ${oidcLinkedEventsApiScope}`,
           },
         },
-        client: {
-          response_types: ['id_token token'],
-        },
-        checks: ['nonce', 'state'],
+        checks: ['pkce', 'state'],
         idToken: true,
-        clientId: process.env.NEXT_PUBLIC_OIDC_CLIENT_ID,
-        profile(user) {
+        clientId: oidcClientId,
+        clientSecret: oidcClientSecret,
+        token: oidcTokenUrl,
+        profile(user): Awaitable<OidcUser> {
+          const profile = user as unknown as TunnistamoProfile;
+
           return {
-            id: user.sub,
-            name: user.name,
-            email: user.email,
+            id: profile.sub,
+            ...profile,
           };
         },
       } as OAuthConfig<User>,
     ],
+    debug: env === 'development',
     callbacks: {
-      async jwt({ token, account }) {
-        const extendedToken = token as ExtendedJWT;
-
-        if (account) {
-          extendedToken.accessToken = account.access_token ?? null;
-          extendedToken.accessTokenExpiresAt = account.expires_at ?? null;
+      async jwt(params) {
+        const { token, user, account } = params as JwtParams;
+        // Initial sign in
+        if (account && user) {
+          const apiTokens = await getApiAccessTokens(account.access_token);
+          return {
+            accessToken: account.access_token,
+            accessTokenExpires: account.expires_at * 1000,
+            refreshToken: account.refresh_token,
+            user,
+            apiTokens,
+          };
         }
 
-        if (extendedToken.accessToken) {
-          if (
-            !extendedToken.apiTokenExpiresAt ||
-            isApiTokenExpiring(extendedToken.apiTokenExpiresAt)
-          ) {
-            try {
-              const apiToken = await fetchApiToken({
-                accessToken: extendedToken.accessToken,
-              });
-
-              extendedToken.apiToken = apiToken;
-              extendedToken.apiTokenExpiresAt = getApiTokenExpirationTime();
-            } catch (e) {
-              extendedToken.apiToken = null;
-              extendedToken.apiTokenExpiresAt = null;
-            }
-          }
-        } else {
-          extendedToken.apiToken = null;
-          extendedToken.apiTokenExpiresAt = null;
+        if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
+          return token;
         }
 
-        return extendedToken;
+        const refreshedToken = await refreshAccessToken(token);
+
+        if (refreshedToken?.error) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return undefined as any;
+        }
+
+        return refreshedToken;
       },
-      async session({ session, token }) {
-        const extendedSession = session as ExtendedSession;
-        const {
-          accessToken,
-          accessTokenExpiresAt,
-          apiToken,
-          apiTokenExpiresAt,
-          sub,
-        } = token as ExtendedJWT;
+      async session(params): Promise<ExtendedSession> {
+        const { session, token } = params as SessionParams;
 
-        extendedSession.accessToken = accessToken;
-        extendedSession.accessTokenExpiresAt = accessTokenExpiresAt;
-        extendedSession.apiToken = apiToken;
-        extendedSession.apiTokenExpiresAt = apiTokenExpiresAt;
-        extendedSession.sub = sub ?? null;
+        if (!token) return session;
 
-        if (session.user && !session.user?.image) {
-          session.user.image = null;
-        }
+        const { accessToken, accessTokenExpires, user, apiTokens } = token;
 
-        return session;
+        return { ...session, accessToken, accessTokenExpires, user, apiTokens };
       },
     },
   };
@@ -124,6 +178,20 @@ export const getNextAuthOptions = (req: NextApiRequest) => {
   return authOptions;
 };
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  return NextAuth(req, res, getNextAuthOptions(req));
+export default function nextAuthApiHandler(
+  req: NextApiRequest,
+  res: NextApiResponse
+): ReturnType<typeof NextAuth> {
+  if (
+    !oidcIssuer ||
+    !oidcApiTokensUrl ||
+    !oidcClientId ||
+    !oidcClientSecret ||
+    !oidcLinkedEventsApiScope ||
+    !oidcTokenUrl
+  ) {
+    throw new Error('Invalid configuration');
+  }
+
+  return NextAuth(req, res, getNextAuthOptions());
 }

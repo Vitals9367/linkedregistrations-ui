@@ -1,17 +1,16 @@
 import { AxiosError } from 'axios';
-import { NextPageContext } from 'next';
 
-import { Language } from '../../types';
+import { ExtendedSession, Language } from '../../types';
 import getLocalisedString from '../../utils/getLocalisedString';
 import { callGet } from '../app/axios/axiosClient';
 import { Place, PlaceFields } from './types';
 
 export const fetchPlace = async (
   id: string,
-  ctx?: Pick<NextPageContext, 'req' | 'res'>
+  session: ExtendedSession | null
 ): Promise<Event> => {
   try {
-    const { data } = await callGet(`/place/${id}/`, undefined, ctx);
+    const { data } = await callGet({ session, url: `/place/${id}/` });
     return data;
   } catch (error) {
     /* istanbul ignore next */

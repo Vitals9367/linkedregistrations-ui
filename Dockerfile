@@ -19,7 +19,7 @@ USER default
 
 RUN yarn --frozen-lockfile
 
-COPY .env next-i18next.config.js next.config.js sentry.client.config.js sentry.properties sentry.server.config.js tsconfig.json /app/
+COPY .env* next-i18next.config.js next.config.js sentry.client.config.js sentry.properties sentry.server.config.js tsconfig.json /app/
 COPY /public/ /app/public
 COPY /src/ /app/src
 
@@ -31,7 +31,7 @@ WORKDIR /app
 USER default
 
 # Bake package.json start command into the image
-CMD ["yarn", "dev"]
+CMD yarn next dev -p ${PORT}
 
 # ============================================================
 FROM dependencies AS builder
@@ -46,14 +46,19 @@ USER default
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Set environmental variables (when building image on Azure) 
-# specified in pipelines/library files
+# specified in pipelines/library files 
 ARG NEXT_PUBLIC_LINKED_EVENTS_URL
 ARG NEXT_PUBLIC_SENTRY_DSN
 ARG SENTRY_AUTH_TOKEN
 ARG NEXT_PUBLIC_ENVIRONMENT
-ARG NEXT_PUBLIC_OIDC_AUTHORITY
-ARG NEXT_PUBLIC_OIDC_CLIENT_ID
-ARG NEXT_PUBLIC_OIDC_API_SCOPE
+
+ARG OIDC_ISSUER
+ARG OIDC_API_TOKENS_URL
+ARG OIDC_CLIENT_ID
+ARG OIDC_CLIENT_SECRET
+ARG OIDC_LINKED_EVENTS_API_SCOPE
+ARG OIDC_TOKEN_URL
+
 ARG NEXTAUTH_SECRET
 ARG NEXTAUTH_URL
 
@@ -82,4 +87,4 @@ COPY --from=builder --chown=default:nodejs /app/.next/static ./.next/static
 # Expose port
 EXPOSE $PORT
 
-CMD ["node", "server.js"]
+CMD node server.js -p ${PORT}

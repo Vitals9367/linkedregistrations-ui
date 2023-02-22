@@ -16,8 +16,6 @@ const customJestConfig = {
     '!**/node_modules/**',
   ],
   coveragePathIgnorePatterns: [
-    '<rootDir>/src/domain/auth/ApiTokenUpdater.tsx',
-    '<rootDir>/src/domain/auth/hooks/useApiTokenUpdater.ts',
     '<rootDir>/src/pages/404.tsx',
     '<rootDir>/src/pages/_app.tsx',
     '<rootDir>/src/pages/_document.tsx',

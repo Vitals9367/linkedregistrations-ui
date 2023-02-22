@@ -39,15 +39,16 @@ const generateEnrolmentGetServerSideProps = ({
     await prefetchRegistrationAndEvent({
       query,
       queryClient,
-      req,
-      res,
+      session,
       shouldPrefetchPlace,
     });
 
     try {
       if (shouldPrefetchEnrolment && typeof query?.accessCode === 'string') {
-        await prefetchEnrolmentQuery(queryClient, {
-          cancellationCode: query.accessCode,
+        await prefetchEnrolmentQuery({
+          args: { cancellationCode: query.accessCode },
+          queryClient,
+          session,
         });
       }
     } catch (e) /* istanbul ignore next */ {

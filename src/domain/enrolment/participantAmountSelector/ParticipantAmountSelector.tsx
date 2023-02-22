@@ -1,9 +1,11 @@
 import { useField } from 'formik';
+import { useSession } from 'next-auth/react';
 import { useTranslation } from 'next-i18next';
 import React, { useState } from 'react';
 
 import Button from '../../../common/components/button/Button';
 import NumberInput from '../../../common/components/numberInput/NumberInput';
+import { ExtendedSession } from '../../../types';
 import { reportError } from '../../app/sentry/utils';
 import { Registration } from '../../registration/types';
 import {
@@ -33,6 +35,7 @@ const ParticipantAmountSelector: React.FC<Props> = ({
   registration,
 }) => {
   const { t } = useTranslation(['enrolment', 'common']);
+  const { data: session } = useSession() as { data: ExtendedSession | null };
 
   const { openModal, setOpenModal } = useEnrolmentPageContext();
   const { setServerErrorItems, showServerErrors } =
@@ -63,43 +66,46 @@ const ParticipantAmountSelector: React.FC<Props> = ({
   );
 
   const updateReserveSeatsMutation = useUpdateReserveSeatsMutation({
-    onError: (error, variables) => {
-      showServerErrors(
-        { error: JSON.parse(error.message) },
-        'seatsReservation'
-      );
+    options: {
+      onError: (error, variables) => {
+        showServerErrors(
+          { error: JSON.parse(error.message) },
+          'seatsReservation'
+        );
 
-      reportError({
-        data: {
-          error: JSON.parse(error.message),
-          payload: variables,
-          payloadAsString: JSON.stringify(variables),
-        },
-        message: 'Failed to update reserve seats',
-      });
+        reportError({
+          data: {
+            error: JSON.parse(error.message),
+            payload: variables,
+            payloadAsString: JSON.stringify(variables),
+          },
+          message: 'Failed to update reserve seats',
+        });
 
-      setSaving(false);
-      closeModal();
-    },
-    onSuccess: (seatsReservation) => {
-      const newAttendees = getNewAttendees({
-        attendees: attendees,
-        registration,
-        seatsReservation,
-      });
-
-      setAttendees(newAttendees);
-      setSeatsReservationData(registration.id, seatsReservation);
-
-      setSaving(false);
-
-      // Show modal to inform that some of the persons will be added to the waiting list
-      if (seatsReservation.waitlist_spots) {
-        setOpenModal(ENROLMENT_MODALS.PERSONS_ADDED_TO_WAITLIST);
-      } else {
+        setSaving(false);
         closeModal();
-      }
+      },
+      onSuccess: (seatsReservation) => {
+        const newAttendees = getNewAttendees({
+          attendees: attendees,
+          registration,
+          seatsReservation,
+        });
+
+        setAttendees(newAttendees);
+        setSeatsReservationData(registration.id, seatsReservation);
+
+        setSaving(false);
+
+        // Show modal to inform that some of the persons will be added to the waiting list
+        if (seatsReservation.waitlist_spots) {
+          setOpenModal(ENROLMENT_MODALS.PERSONS_ADDED_TO_WAITLIST);
+        } else {
+          closeModal();
+        }
+      },
     },
+    session,
   });
 
   const updateParticipantAmount = () => {

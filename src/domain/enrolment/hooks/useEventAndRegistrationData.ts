@@ -1,5 +1,7 @@
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
+import { ExtendedSession } from '../../../types';
 import { EVENT_INCLUDES } from '../../event/constants';
 import { useEventQuery } from '../../event/query';
 import { Event } from '../../event/types';
@@ -15,27 +17,30 @@ type UseEventAndRegistrationDataState = {
 const useEventAndRegistrationData = (): UseEventAndRegistrationDataState => {
   const router = useRouter();
   const { query } = router;
+  const { data: session } = useSession() as { data: ExtendedSession | null };
 
   const {
     data: registration,
     isFetching: isFetchingRegistration,
     status: statusRegistration,
-  } = useRegistrationQuery(
-    { id: query.registrationId as string },
-    { enabled: !!query.registrationId, retry: 0 }
-  );
+  } = useRegistrationQuery({
+    args: { id: query.registrationId as string },
+    options: { enabled: !!query.registrationId, retry: 0 },
+    session,
+  });
 
   const {
     data: event,
     isFetching: isFetchingEvent,
     status: statusEvent,
-  } = useEventQuery(
-    {
+  } = useEventQuery({
+    args: {
       id: registration?.event as string,
       include: EVENT_INCLUDES,
     },
-    { enabled: !!registration?.event }
-  );
+    options: { enabled: !!registration?.event },
+    session,
+  });
 
   const isLoading =
     (statusRegistration === 'loading' && isFetchingRegistration) ||

@@ -1,6 +1,7 @@
 import { Form, Formik } from 'formik';
 import { Notification } from 'hds-react';
 import pick from 'lodash/pick';
+import { useSession } from 'next-auth/react';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import React, { FC } from 'react';
@@ -10,6 +11,7 @@ import FormikPersist from '../../../common/components/formikPersist/FormikPersis
 import LoadingSpinner from '../../../common/components/loadingSpinner/LoadingSpinner';
 import ServerErrorSummary from '../../../common/components/serverErrorSummary/ServerErrorSummary';
 import { FORM_NAMES } from '../../../constants';
+import { ExtendedSession } from '../../../types';
 import Container from '../../app/layout/container/Container';
 import MainContent from '../../app/layout/mainContent/MainContent';
 import { ROUTES } from '../../app/routes/constants';
@@ -53,6 +55,7 @@ const SummaryPage: FC<SummaryPageProps> = ({ event, registration }) => {
     useReservationTimer();
   const { t } = useTranslation(['summary']);
   const router = useRouter();
+  const { data: session } = useSession() as { data: ExtendedSession | null };
 
   const goToEnrolmentCompletedPage = () => {
     // Disable reservation timer callbacks
@@ -91,9 +94,9 @@ const SummaryPage: FC<SummaryPageProps> = ({ event, registration }) => {
     });
   };
 
-  const createEnrolmentMutation = useCreateEnrolmentMutation(
-    registration.id as string,
-    {
+  const createEnrolmentMutation = useCreateEnrolmentMutation({
+    registrationId: registration.id as string,
+    options: {
       onError: (error, variables) => {
         showServerErrors({ error: JSON.parse(error.message) }, 'enrolment');
         reportError({
@@ -106,8 +109,9 @@ const SummaryPage: FC<SummaryPageProps> = ({ event, registration }) => {
         });
       },
       onSuccess: goToEnrolmentCompletedPage,
-    }
-  );
+    },
+    session,
+  });
 
   return (
     <MainContent className={styles.summaryPage}>

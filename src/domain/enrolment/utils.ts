@@ -1,8 +1,8 @@
 import { AxiosError } from 'axios';
 import isEqual from 'lodash/isEqual';
-import { NextPageContext } from 'next';
 
 import { FORM_NAMES, RESERVATION_NAMES } from '../../constants';
+import { ExtendedSession } from '../../types';
 import formatDate from '../../utils/formatDate';
 import queryBuilder from '../../utils/queryBuilder';
 import stringToDate from '../../utils/stringToDate';
@@ -27,10 +27,13 @@ import {
 
 export const fetchEnrolment = async (
   args: EnrolmentQueryVariables,
-  ctx?: Pick<NextPageContext, 'req' | 'res'>
+  session: ExtendedSession | null
 ): Promise<Enrolment> => {
   try {
-    const { data } = await callGet(enrolmentPathBuilder(args), undefined, ctx);
+    const { data } = await callGet({
+      session,
+      url: enrolmentPathBuilder(args),
+    });
     return data;
   } catch (error) {
     /* istanbul ignore next */
@@ -49,34 +52,40 @@ export const enrolmentPathBuilder = (args: EnrolmentQueryVariables): string => {
   return `/signup/${query}`;
 };
 
-export const createEnrolment = async (
-  registrationId: string,
-  input: CreateEnrolmentMutationInput,
-  ctx?: Pick<NextPageContext, 'req' | 'res'>
-): Promise<CreateEnrolmentResponse> => {
+export const createEnrolment = async ({
+  input,
+  registrationId,
+  session,
+}: {
+  input: CreateEnrolmentMutationInput;
+  registrationId: string;
+  session: ExtendedSession | null;
+}): Promise<CreateEnrolmentResponse> => {
   try {
-    const { data } = await callPost(
-      `/registration/${registrationId}/signup/`,
-      JSON.stringify(input),
-      undefined,
-      ctx
-    );
+    const { data } = await callPost({
+      data: JSON.stringify(input),
+      session,
+      url: `/registration/${registrationId}/signup/`,
+    });
     return data;
   } catch (error) {
     throw Error(JSON.stringify((error as AxiosError).response?.data));
   }
 };
 
-export const deleteEnrolment = async (
-  cancellationCode: string,
-  ctx?: Pick<NextPageContext, 'req' | 'res'>
-): Promise<null> => {
+export const deleteEnrolment = async ({
+  cancellationCode,
+  session,
+}: {
+  cancellationCode: string;
+  session: ExtendedSession | null;
+}): Promise<null> => {
   try {
-    const { data } = await callDelete(
-      '/signup/',
-      { data: JSON.stringify({ cancellation_code: cancellationCode }) },
-      ctx
-    );
+    const { data } = await callDelete({
+      config: { data: JSON.stringify({ cancellation_code: cancellationCode }) },
+      session,
+      url: '/signup/',
+    });
     return data;
   } catch (error) {
     throw Error(JSON.stringify((error as AxiosError).response?.data));

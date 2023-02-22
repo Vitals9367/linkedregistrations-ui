@@ -1,6 +1,7 @@
 import { Field, FieldAttributes, Form, Formik } from 'formik';
 import { IconCross, SingleSelectProps } from 'hds-react';
 import pick from 'lodash/pick';
+import { useSession } from 'next-auth/react';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -20,7 +21,7 @@ import FormikPersist from '../../../common/components/formikPersist/FormikPersis
 import ServerErrorSummary from '../../../common/components/serverErrorSummary/ServerErrorSummary';
 import { FORM_NAMES } from '../../../constants';
 import useLocale from '../../../hooks/useLocale';
-import { OptionType } from '../../../types';
+import { ExtendedSession, OptionType } from '../../../types';
 import { ROUTES } from '../../app/routes/constants';
 import { reportError } from '../../app/sentry/utils';
 import { Registration } from '../../registration/types';
@@ -85,6 +86,7 @@ const EnrolmentForm: React.FC<Props> = ({
   registration,
 }) => {
   const { t } = useTranslation(['enrolment', 'common']);
+  const { data: session } = useSession() as { data: ExtendedSession | null };
 
   const formSavingDisabled = React.useRef(!!readOnly);
 
@@ -139,22 +141,25 @@ const EnrolmentForm: React.FC<Props> = ({
   };
 
   const deleteEnrolmentMutation = useDeleteEnrolmentMutation({
-    onError: (error, variables) => {
-      closeModal();
+    options: {
+      onError: (error, variables) => {
+        closeModal();
 
-      showServerErrors({ error: JSON.parse(error.message) }, 'enrolment');
-      // Report error to Sentry
-      reportError({
-        data: {
-          error: JSON.parse(error.message),
-          cancellationCode: variables,
-        },
-        message: 'Failed to cancel enrolment',
-      });
+        showServerErrors({ error: JSON.parse(error.message) }, 'enrolment');
+        // Report error to Sentry
+        reportError({
+          data: {
+            error: JSON.parse(error.message),
+            cancellationCode: variables,
+          },
+          message: 'Failed to cancel enrolment',
+        });
+      },
+      onSuccess: () => {
+        cleanAfterUpdate({ onSuccess: () => goToEnrolmentCancelledPage() });
+      },
     },
-    onSuccess: () => {
-      cleanAfterUpdate({ onSuccess: () => goToEnrolmentCancelledPage() });
-    },
+    session,
   });
 
   const handleCancel = () => {
