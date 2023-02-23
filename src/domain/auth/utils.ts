@@ -13,14 +13,12 @@ export const getApiTokensRequest = async ({
   linkedEventsApiScope: string;
   url: string;
 }): Promise<APITokens> => {
-  const response = await axios.request({
-    url,
-    method: 'POST',
-    responseType: 'json',
+  const response = await axios.post(url, undefined, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
+    responseType: 'json',
   });
 
   const linkedevents = response.data[linkedEventsApiScope];
@@ -39,20 +37,19 @@ export const refreshAccessTokenRequest = async ({
   refreshToken: string;
   url: string;
 }): Promise<RefreshTokenResponse> => {
-  const response = await axios.request({
+  const response = await axios.post(
     url,
-    method: 'POST',
-    responseType: 'json',
-    data: {
+    {
       client_id: clientId,
       client_secret: clientSecret,
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
     },
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
+    {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      responseType: 'json',
+    }
+  );
 
   return response.data;
 };

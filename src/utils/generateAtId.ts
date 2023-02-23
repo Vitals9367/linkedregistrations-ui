@@ -5,6 +5,7 @@ const {
 } = getConfig();
 
 const generateAtId = (id: string, endpoint: string): string => {
+  /* istanbul ignore next */
   if (!linkedEventsApiBaseUrl) {
     throw new Error(
       'Invalid configuration. Linked Events API base url missing'

@@ -8,6 +8,7 @@ const {
 } = getConfig();
 
 const getAxiosClient = () => {
+  /* istanbul ignore next */
   if (!linkedEventsApiBaseUrl) {
     throw new Error(
       'Invalid configuration. Linked Events API base url missing'
