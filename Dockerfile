@@ -19,7 +19,7 @@ USER default
 
 RUN yarn --frozen-lockfile
 
-COPY .env* next-i18next.config.js next.config.js sentry.client.config.js sentry.properties sentry.server.config.js tsconfig.json /app/
+COPY next-i18next.config.js next.config.js sentry.client.config.js sentry.properties sentry.server.config.js tsconfig.json /app/
 COPY /public/ /app/public
 COPY /src/ /app/src
 
