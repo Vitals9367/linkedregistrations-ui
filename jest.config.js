@@ -23,7 +23,6 @@ const customJestConfig = {
     '<rootDir>/src/pages/callback.tsx',
     '<rootDir>/src/pages/healthz.ts',
     '<rootDir>/src/pages/readiness.ts',
-    '<rootDir>/src/pages/api/auth',
     '<rootDir>/src/tests/',
     '<rootDir>/src/utils/getPageHeaderHeight.ts',
     '<rootDir>/src/utils/getSessionAndUser.ts',

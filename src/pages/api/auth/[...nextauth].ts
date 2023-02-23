@@ -1,5 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import NextAuth, { Awaitable, NextAuthOptions, User } from 'next-auth';
+import NextAuth, {
+  Account,
+  Awaitable,
+  NextAuthOptions,
+  Session,
+  User,
+} from 'next-auth';
+import { JWT } from 'next-auth/jwt';
 import { OAuthConfig } from 'next-auth/providers/oauth';
 import getConfig from 'next/config';
 
@@ -40,13 +47,14 @@ const {
   },
 } = getConfig();
 
-const getApiAccessTokens = async (
+export const getApiAccessTokens = async (
   accessToken: string | undefined
 ): Promise<APITokens> => {
   if (!accessToken) {
     throw new Error('Access token not available. Cannot update');
   }
 
+  /* istanbul ignore next */
   if (!oidcLinkedEventsApiScope) {
     throw new Error(
       'Application configuration error, missing Linked Events Api scope.'
@@ -59,14 +67,16 @@ const getApiAccessTokens = async (
     url: oidcApiTokensUrl,
   });
 
-  if (!apiTokens) {
+  if (!apiTokens.linkedevents) {
     throw new Error('No api-tokens present');
   }
 
   return apiTokens;
 };
 
-const refreshAccessToken = async (token: ExtendedJWT): Promise<ExtendedJWT> => {
+export const refreshAccessToken = async (
+  token: ExtendedJWT
+): Promise<ExtendedJWT> => {
   if (!token.refreshToken) {
     throw new Error('No refresh token present');
   }
@@ -89,7 +99,10 @@ const refreshAccessToken = async (token: ExtendedJWT): Promise<ExtendedJWT> => {
       ...token,
       accessToken: response.access_token,
       accessTokenExpires: Date.now() + response.expires_in * 1000,
-      refreshToken: response.refresh_token ?? token.refreshToken,
+      refreshToken:
+        response.refresh_token ??
+        /* istanbul ignore next */
+        token.refreshToken,
       apiTokens,
     };
   } catch (error) {
@@ -101,6 +114,58 @@ const refreshAccessToken = async (token: ExtendedJWT): Promise<ExtendedJWT> => {
       error: 'RefreshAccessTokenError',
     };
   }
+};
+
+export const getProfile = (user: User): Awaitable<OidcUser> => {
+  const profile = user as unknown as TunnistamoProfile;
+
+  return { ...profile, id: profile.sub };
+};
+
+export const jwtCallback = async (params: {
+  token: JWT;
+  user?: User;
+  account?: Account | null;
+}) => {
+  const { token, user, account } = params as JwtParams;
+  // Initial sign in
+  if (account && user) {
+    const apiTokens = await getApiAccessTokens(account.access_token);
+    return {
+      accessToken: account.access_token,
+      accessTokenExpires: account.expires_at * 1000,
+      refreshToken: account.refresh_token,
+      user,
+      apiTokens,
+    };
+  }
+
+  if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
+    return token;
+  }
+
+  const refreshedToken = await refreshAccessToken(token);
+
+  if (refreshedToken?.error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return undefined as any;
+  }
+
+  return refreshedToken;
+};
+
+export const sessionCallback = (params: {
+  session: Session;
+  user: User;
+  token: JWT;
+}): ExtendedSession => {
+  const { session, token } = params as SessionParams;
+
+  if (!token) return session;
+
+  const { accessToken, accessTokenExpires, user, apiTokens } = token;
+
+  return { ...session, accessToken, accessTokenExpires, user, apiTokens };
 };
 
 export const getNextAuthOptions = () => {
@@ -124,54 +189,13 @@ export const getNextAuthOptions = () => {
         clientId: oidcClientId,
         clientSecret: oidcClientSecret,
         token: oidcTokenUrl,
-        profile(user): Awaitable<OidcUser> {
-          const profile = user as unknown as TunnistamoProfile;
-
-          return {
-            id: profile.sub,
-            ...profile,
-          };
-        },
+        profile: getProfile,
       } as OAuthConfig<User>,
     ],
     debug: env === 'development',
     callbacks: {
-      async jwt(params) {
-        const { token, user, account } = params as JwtParams;
-        // Initial sign in
-        if (account && user) {
-          const apiTokens = await getApiAccessTokens(account.access_token);
-          return {
-            accessToken: account.access_token,
-            accessTokenExpires: account.expires_at * 1000,
-            refreshToken: account.refresh_token,
-            user,
-            apiTokens,
-          };
-        }
-
-        if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
-          return token;
-        }
-
-        const refreshedToken = await refreshAccessToken(token);
-
-        if (refreshedToken?.error) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          return undefined as any;
-        }
-
-        return refreshedToken;
-      },
-      async session(params): Promise<ExtendedSession> {
-        const { session, token } = params as SessionParams;
-
-        if (!token) return session;
-
-        const { accessToken, accessTokenExpires, user, apiTokens } = token;
-
-        return { ...session, accessToken, accessTokenExpires, user, apiTokens };
-      },
+      jwt: jwtCallback,
+      session: sessionCallback,
     },
   };
 

@@ -13,7 +13,7 @@ const refreshToken = 'refresh-token';
 const tokenUrl = 'http://localhost:3000/token/';
 
 describe('getApiTokensRequest function', () => {
-  it('should fetxh api token', async () => {
+  it('should fetch api token', async () => {
     const apiTokenResponse: APITokens = { [linkedEventsApiScope]: apiToken };
     const axiosFn = jest
       .spyOn(mockAxios, 'post')
@@ -36,7 +36,7 @@ describe('getApiTokensRequest function', () => {
 });
 
 describe('getApiTokensRequest function', () => {
-  it('should fetxh api token', async () => {
+  it('should fetch api token', async () => {
     const apiTokenResponse: RefreshTokenResponse = {
       access_token: accessToken,
       expires_in: 3600,
