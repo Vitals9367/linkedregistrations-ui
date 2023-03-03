@@ -8,7 +8,6 @@ import NextAuth, {
 } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import { OAuthConfig } from 'next-auth/providers/oauth';
-import getConfig from 'next/config';
 
 import {
   getApiTokensRequest,
@@ -22,6 +21,7 @@ import {
   TunnistamoAccount,
   TunnistamoProfile,
 } from '../../../types';
+import getServerRuntimeConfig from '../../../utils/getServerRuntimeConfig';
 
 type JwtParams = {
   token: ExtendedJWT;
@@ -35,21 +35,12 @@ type SessionParams = {
   session: ExtendedSession;
 };
 
-const {
-  serverRuntimeConfig: {
-    env,
-    oidcApiTokensUrl,
-    oidcClientId,
-    oidcClientSecret,
-    oidcIssuer,
-    oidcLinkedEventsApiScope,
-    oidcTokenUrl,
-  },
-} = getConfig();
-
 export const getApiAccessTokens = async (
   accessToken: string | undefined
 ): Promise<APITokens> => {
+  const { oidcLinkedEventsApiScope, oidcApiTokensUrl } =
+    getServerRuntimeConfig();
+
   if (!accessToken) {
     throw new Error('Access token not available. Cannot update');
   }
@@ -77,6 +68,9 @@ export const getApiAccessTokens = async (
 export const refreshAccessToken = async (
   token: ExtendedJWT
 ): Promise<ExtendedJWT> => {
+  const { oidcClientId, oidcClientSecret, oidcTokenUrl } =
+    getServerRuntimeConfig();
+
   if (!token.refreshToken) {
     throw new Error('No refresh token present');
   }
@@ -169,6 +163,14 @@ export const sessionCallback = (params: {
 };
 
 export const getNextAuthOptions = () => {
+  const {
+    env,
+    oidcClientId,
+    oidcClientSecret,
+    oidcIssuer,
+    oidcLinkedEventsApiScope,
+    oidcTokenUrl,
+  } = getServerRuntimeConfig();
   const wellKnown = `${oidcIssuer}/.well-known/openid-configuration`;
 
   const authOptions: NextAuthOptions = {
@@ -206,16 +208,5 @@ export default function nextAuthApiHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ): ReturnType<typeof NextAuth> {
-  if (
-    !oidcIssuer ||
-    !oidcApiTokensUrl ||
-    !oidcClientId ||
-    !oidcClientSecret ||
-    !oidcLinkedEventsApiScope ||
-    !oidcTokenUrl
-  ) {
-    throw new Error('Invalid configuration');
-  }
-
   return NextAuth(req, res, getNextAuthOptions());
 }

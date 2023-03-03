@@ -1,16 +1,7 @@
-import getConfig from 'next/config';
-
-const {
-  publicRuntimeConfig: { linkedEventsApiBaseUrl },
-} = getConfig();
+import getPublicRuntimeConfig from './getPublicRuntimeConfig';
 
 const generateAtId = (id: string, endpoint: string): string => {
-  /* istanbul ignore next */
-  if (!linkedEventsApiBaseUrl) {
-    throw new Error(
-      'Invalid configuration. Linked Events API base url missing'
-    );
-  }
+  const { linkedEventsApiBaseUrl } = getPublicRuntimeConfig();
 
   return `${linkedEventsApiBaseUrl}/${endpoint}/${id}/`;
 };

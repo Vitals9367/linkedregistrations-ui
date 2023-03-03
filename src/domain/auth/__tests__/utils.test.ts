@@ -5,12 +5,12 @@ import { getApiTokensRequest, refreshAccessTokenRequest } from '../utils';
 
 const accessToken = 'access-token';
 const apiToken = 'linked-events-api-token';
-const apiTokensUrl = 'http://localhost:3000/api-tokens/';
+const apiTokensUrl = 'https://localhost:8000/api-tokens/';
 const clientId = 'client-id';
 const clientSecret = 'client-secret';
 const linkedEventsApiScope = 'linkedevents';
 const refreshToken = 'refresh-token';
-const tokenUrl = 'http://localhost:3000/token/';
+const tokenUrl = 'https://localhost:8000/token/';
 
 describe('getApiTokensRequest function', () => {
   it('should fetch api token', async () => {

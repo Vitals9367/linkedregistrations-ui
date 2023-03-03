@@ -1,19 +1,10 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import getConfig from 'next/config';
 
 import { ExtendedSession } from '../../../types';
-
-const {
-  publicRuntimeConfig: { linkedEventsApiBaseUrl },
-} = getConfig();
+import getPublicRuntimeConfig from '../../../utils/getPublicRuntimeConfig';
 
 const getAxiosClient = () => {
-  /* istanbul ignore next */
-  if (!linkedEventsApiBaseUrl) {
-    throw new Error(
-      'Invalid configuration. Linked Events API base url missing'
-    );
-  }
+  const { linkedEventsApiBaseUrl } = getPublicRuntimeConfig();
 
   return axios.create({
     baseURL: linkedEventsApiBaseUrl,

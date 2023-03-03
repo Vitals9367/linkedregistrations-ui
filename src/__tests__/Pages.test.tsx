@@ -43,6 +43,7 @@ import {
   getMockedSeatsReservationData,
   setEnrolmentFormSessionStorageValues,
 } from '../utils/mockDataUtils';
+import { mockDefaultConfig } from '../utils/mockNextJsConfig';
 import {
   loadingSpinnerIsNotInDocument,
   render,
@@ -53,6 +54,7 @@ import {
 jest.mock('next/dist/client/router', () => require('next-router-mock'));
 
 beforeEach(() => {
+  mockDefaultConfig();
   // values stored in tests will also be available in other tests unless you run
   localStorage.clear();
   sessionStorage.clear();

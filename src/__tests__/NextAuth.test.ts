@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '../tests/mockNextAuth';
@@ -19,25 +21,13 @@ import {
   RefreshTokenResponse,
   TunnistamoAccount,
 } from '../types';
-
-jest.mock('next/config', () => () => ({
-  publicRuntimeConfig: {
-    linkedEventsApiBaseUrl: 'http://linkedevents-backend:8000/v1',
-  },
-  serverRuntimeConfig: {
-    env: 'development',
-    oidcIssuer: 'http://tunnistamo-backend:8000',
-    oidcClientId: 'linkedregistrations-ui',
-    oidcClientSecret: 'secret',
-    oidcApiTokensUrl: 'http://tunnistamo-backend:8000/api-tokens',
-    oidcLinkedEventsApiScope: 'linkedevents',
-    oidcTokenUrl: 'http://tunnistamo-backend:8000/token',
-  },
-}));
+import { mockDefaultConfig } from '../utils/mockNextJsConfig';
 
 afterEach(() => {
   clear();
 });
+
+beforeEach(() => mockDefaultConfig());
 
 const accessToken = 'access-token';
 const apiToken = 'api-token';
@@ -134,9 +124,9 @@ describe('refreshAccessToken function', () => {
 
     jest.spyOn(mockAxios, 'post').mockImplementation(async (url) => {
       switch (url) {
-        case 'http://tunnistamo-backend:8000/token':
+        case 'https://tunnistamo-backend:8000/token':
           return { data: { ...refreshResponse } };
-        case 'http://tunnistamo-backend:8000/api-tokens':
+        case 'https://tunnistamo-backend:8000/api-tokens':
           return { data: { ...apiTokenResponse } };
       }
     });
@@ -223,9 +213,9 @@ describe('jwtCallback function', () => {
 
     jest.spyOn(mockAxios, 'post').mockImplementation(async (url) => {
       switch (url) {
-        case 'http://tunnistamo-backend:8000/token':
+        case 'https://tunnistamo-backend:8000/token':
           return { data: { ...refreshResponse } };
-        case 'http://tunnistamo-backend:8000/api-tokens':
+        case 'https://tunnistamo-backend:8000/api-tokens':
           return { data: { ...apiTokenResponse } };
       }
     });
