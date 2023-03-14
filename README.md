@@ -107,6 +107,7 @@ Use .env.local for development.
 | OIDC_TOKEN_URL                | Tunnistamo token endpoint url. Default is https://api.hel.fi/sso/token/     |
 | NEXTAUTH_SECRET               | next-auth secret                                                            |
 | NEXTAUTH_URL                  | Canonical url of the site used by next-auth                                 |
+| NEXT_ENV                      | 'development' or 'production'                                               |
 
 ## Url parameters
 

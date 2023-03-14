@@ -62,6 +62,8 @@ ARG OIDC_TOKEN_URL
 ARG NEXTAUTH_SECRET
 ARG NEXTAUTH_URL
 
+ARG NEXT_ENV
+
 RUN yarn build
 
 # ============================================================
