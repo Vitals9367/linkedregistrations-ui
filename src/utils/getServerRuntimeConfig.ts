@@ -23,7 +23,7 @@ const getServerRuntimeConfig = () => {
     !oidcTokenUrl
   ) {
     throw new Error(
-      'Invalid configuration. Some required server runtime variable are missing'
+      `Invalid configuration. Some required server runtime variable are missing. \nenv:${env} \noidcApiTokensUrl:${oidcApiTokensUrl} \noidcClientId:${oidcClientId} \noidcClientSecret:${oidcClientSecret} \noidcIssuer:${oidcIssuer} \noidcLinkedEventsApiScope:${oidcLinkedEventsApiScope} oidcTokenUrl:${oidcTokenUrl}`
     );
   }
 
